@@ -1,0 +1,10 @@
+rebuild_on_push:
+  steps:
+    - rebuild_package:
+        project: home:technicomp:benchtop
+        package: tc-benchtop-settings
+  filters:
+    event: push
+    branches:
+      only:
+        - main
