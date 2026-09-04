@@ -1,0 +1,2 @@
+# tc-benchtop-settings is a pure configuration package.
+addFilter("no-documentation")

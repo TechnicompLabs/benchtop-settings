@@ -1,0 +1,7 @@
+# TechniComp Benchtop Linux — I/O scheduler selection
+# Source: notes Performance/Storage and IO.md, with the note's own NVMe caveat
+# applied (none for NVMe; kyber for SATA SSD; bfq for rotational/SD).
+ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
+ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="mmcblk?", ATTR{queue/scheduler}="bfq"
+ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="nvme?n?", ATTR{queue/scheduler}="none"
+ACTION=="add|change", SUBSYSTEM=="block", ATTR{queue/rotational}=="0", KERNEL=="sd?", ATTR{queue/scheduler}="kyber"

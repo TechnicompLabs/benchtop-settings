@@ -1,0 +1,3 @@
+# TechniComp Benchtop Linux — tame writeback on slow removable USB storage
+# Source: notes Performance/Storage and IO.md (verbatim)
+ACTION=="add|change", SUBSYSTEM=="block", ATTRS{removable}=="1", ATTR{bdi/max_ratio}="1"
