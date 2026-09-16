@@ -1,0 +1,6 @@
+# TechniComp Benchtop Linux - tame writeback on slow removable USB storage
+# Source: notes Performance/Storage and IO.md
+# Small per-device dirty budget so userspace cannot get far ahead of a slow USB
+# stick. Deliberately per-device: does NOT touch global vm.dirty_* (which would
+# also throttle high-performance storage such as NVMe).
+ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="sd*", SUBSYSTEMS=="usb", ATTR{removable}=="1", ATTR{bdi/max_bytes}="8388608", ATTR{bdi/strict_limit}="1"

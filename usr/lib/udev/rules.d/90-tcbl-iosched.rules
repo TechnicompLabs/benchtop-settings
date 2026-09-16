@@ -1,0 +1,20 @@
+# TechniComp Benchtop Linux - I/O scheduler selection
+# Source: notes Performance/Storage and IO.md
+# BFQ for rotational disks and slow removable USB flash (fairness/latency);
+# kyber for SSD/NVMe (low-overhead multiqueue). USB SSD/NVMe enclosures report
+# removable=0 and keep kyber; removable USB flash is overridden back to BFQ.
+
+# Rotational disks: SATA/SAS/USB HDDs.
+ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
+
+# SD/eMMC storage.
+ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="mmcblk*", ATTR{queue/scheduler}="bfq"
+
+# NVMe SSDs.
+ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="nvme*n*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="kyber"
+
+# Non-rotational SCSI-family (SATA SSD, USB SSD/flash); removable USB flash overridden below.
+ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="sd*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="kyber"
+
+# Slow/removable USB mass storage - override back to BFQ (must come after the generic sd* rule).
+ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="sd*", SUBSYSTEMS=="usb", ATTR{removable}=="1", ATTR{queue/scheduler}="bfq"
