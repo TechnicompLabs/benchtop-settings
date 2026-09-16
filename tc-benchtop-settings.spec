@@ -69,8 +69,11 @@ install -d "%{buildroot}"
 # modprobe
 %{_prefix}/lib/modprobe.d/90-tcbl-blacklist-watchdogs.conf
 # NetworkManager
+%dir %{_prefix}/lib/NetworkManager
+%dir %{_prefix}/lib/NetworkManager/conf.d
 %{_prefix}/lib/NetworkManager/conf.d/90-tcbl-dns.conf
 # PAM resource limits
+%dir %{_sysconfdir}/security/limits.d
 %config %{_sysconfdir}/security/limits.d/90-tcbl-audio.conf
 %config %{_sysconfdir}/security/limits.d/90-tcbl-memlock.conf
 # Brave enterprise policy
