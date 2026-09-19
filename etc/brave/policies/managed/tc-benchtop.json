@@ -1,7 +1,7 @@
 {
   "BraveRewardsDisabled": true,
   "BraveWalletDisabled": true,
-  "BraveVPNDisabled": 1,
+  "BraveVPNDisabled": true,
   "BraveAIChatEnabled": false,
   "TorDisabled": true,
   "DnsOverHttpsMode": "automatic"
