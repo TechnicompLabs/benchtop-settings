@@ -19,7 +19,7 @@ Requires:       systemd
 
 %description
 System-level defaults for TechniComp Benchtop Linux (an immutable
-Slowroll-based openSUSE derivative): VM/network/scheduler sysctls, I/O
+Tumbleweed-based openSUSE derivative, built against openSUSE:Factory): VM/network/scheduler sysctls, I/O
 scheduler and USB writeback udev rules, THP/MGLRU tmpfiles policies,
 shutdown timeout, watchdog module blacklist, realtime-audio and memlock
 resource limits, the systemd-resolved DNS backend selection, and the Brave

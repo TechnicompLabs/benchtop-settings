@@ -1,6 +1,6 @@
 # tc-benchtop-settings
 
-System-defaults RPM for **TechniComp Benchtop Linux** (an immutable Slowroll-based openSUSE derivative). Built on OBS directly from this repository via scmsync.
+System-defaults RPM for **TechniComp Benchtop Linux** (an immutable Tumbleweed-based openSUSE derivative, built against openSUSE:Factory). Built on OBS directly from this repository via scmsync.
 
 The configuration files are laid out as a filesystem tree that mirrors their final install paths, in the style of [pop-os/default-settings](https://github.com/pop-os/default-settings) and [CachyOS/CachyOS-Settings](https://github.com/CachyOS/CachyOS-Settings). The spec installs the tree verbatim into the buildroot.
 
