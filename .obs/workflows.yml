@@ -1,6 +1,6 @@
 rebuild_on_push:
   steps:
-    - rebuild_package:
+    - trigger_services:
         project: home:technicomp:benchtop
         package: tc-benchtop-settings
   filters:
