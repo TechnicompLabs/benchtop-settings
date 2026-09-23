@@ -65,7 +65,6 @@ install -d "%{buildroot}"
 # tmpfiles
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp.conf
 %{_prefix}/lib/tmpfiles.d/90-tcbl-mglru.conf
-%{_prefix}/lib/tmpfiles.d/90-tcbl-resolv.conf
 # systemd
 %dir %{_prefix}/lib/systemd/system.conf.d
 %{_prefix}/lib/systemd/system.conf.d/90-tcbl-shutdown.conf
