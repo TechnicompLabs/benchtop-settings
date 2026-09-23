@@ -8,7 +8,7 @@ Layout:
 
 - `usr/lib/sysctl.d/` - VM defaults, network (CUBIC + fq_codel, MTU probing), split-lock mitigation off
 - `usr/lib/udev/rules.d/` - I/O scheduler selection (BFQ/kyber) and slow-USB writeback limiting
-- `usr/lib/tmpfiles.d/` - Transparent Huge Pages and Multi-Gen LRU policies; `/etc/resolv.conf` linked to systemd-resolved's stub
+- `usr/lib/tmpfiles.d/` - Transparent Huge Pages and Multi-Gen LRU policies
 - `usr/lib/systemd/system.conf.d/` - shorter default shutdown timeout
 - `usr/lib/modprobe.d/` - hardware watchdog blacklist
 - `usr/lib/NetworkManager/conf.d/` - systemd-resolved as the DNS backend
