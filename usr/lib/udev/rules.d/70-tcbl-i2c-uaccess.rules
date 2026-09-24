@@ -1,6 +1,0 @@
-# TechniComp Benchtop Linux: the user logged in at the machine gets the I2C/SMBus
-# device nodes (OpenRGB's RAM and motherboard lighting), as upstream OpenRGB's
-# rules grant them. openSUSE's OpenRGB-udev-rules grants them only to the openrgb
-# group (bsc#1215130). Numbered below 73 because systemd's 73-seat-late.rules
-# applies the uaccess tag.
-SUBSYSTEM=="i2c-dev", TAG+="uaccess"
