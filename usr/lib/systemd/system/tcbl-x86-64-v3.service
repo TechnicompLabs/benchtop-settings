@@ -1,0 +1,33 @@
+# TechniComp Benchtop Linux: after an automatic update, install the x86-64-v3
+# optimized builds of the system libraries (glibc HWCAPS) on top of the snapshot
+# that the update created, on processors that support x86-64-v3; on older
+# processors the CPU conditions below skip it. "pkg in --force" reinstalls the
+# pattern so that zypper also adds the optimized builds of newly updated
+# libraries. Because that always changes something, it runs only while an
+# update waits for a restart (/run/reboot-needed); otherwise every daily run
+# would create a new snapshot. Forked from openSUSE's x86_64_v3-branding-Aeon
+# (MIT).
+[Unit]
+Description=Install the x86-64-v3 optimized libraries after an update
+Documentation=man:transactional-update(8)
+ConditionPathExists=/run/reboot-needed
+# as transactional-update.service, which does not update on battery power
+ConditionACPower=true
+ConditionCPUFeature=avx
+ConditionCPUFeature=avx2
+ConditionCPUFeature=bmi1
+ConditionCPUFeature=bmi2
+ConditionCPUFeature=f16c
+ConditionCPUFeature=fma3
+ConditionCPUFeature=movbe
+ConditionCPUFeature=osxsave
+After=transactional-update.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/transactional-update --continue --non-interactive pkg in --force --recommends patterns-glibc-hwcaps-x86_64_v3
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+[Install]
+WantedBy=transactional-update.service
