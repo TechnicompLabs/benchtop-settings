@@ -23,7 +23,7 @@ Requires:       acl
 # openSUSE's macros that apply newly installed or changed presets
 BuildRequires:  systemd-presets-common-SUSE-devel
 %{?systemd_preset_requires}
-# macros for tcbl-x86-64-v3.service and tcbl-panic-restart.service
+# macros for tcbl-x86-64-v3.service
 BuildRequires:  systemd-rpm-macros
 %{?systemd_ordering}
 
@@ -36,8 +36,7 @@ administrators (OpenRGB),
 realtime-audio and memlock resource limits, the systemd-resolved DNS backend
 selection, the Brave enterprise policy, the TCBL package repository with its
 signing key, the services and reboot handling of automatic transactional
-updates (including x86-64-v3 optimized libraries), graphical-only logins, and a
-5-second restart after a kernel panic once the boot has completed.
+updates (including x86-64-v3 optimized libraries), and graphical-only logins.
 
 %prep
 # nothing to unpack - the configuration files are a tree in the scm checkout
@@ -68,12 +67,12 @@ install -d "%{buildroot}"
 %pre
 %systemd_preset_pre
 %systemd_user_preset_pre
-%service_add_pre tcbl-x86-64-v3.service tcbl-panic-restart.service
+%service_add_pre tcbl-x86-64-v3.service
 
 %post
 %systemd_preset_post
 %systemd_user_preset_post
-%service_add_post tcbl-x86-64-v3.service tcbl-panic-restart.service
+%service_add_post tcbl-x86-64-v3.service
 # systemd enabled the tty1 login before this package's preset existed. The
 # macro calls systemctl unguarded, and OBS's install test has no systemd.
 if [ -x /usr/bin/systemctl ]; then
@@ -85,10 +84,10 @@ fi
 %systemd_user_preset_posttrans
 
 %preun
-%service_del_preun tcbl-x86-64-v3.service tcbl-panic-restart.service
+%service_del_preun tcbl-x86-64-v3.service
 
 %postun
-%service_del_postun_without_restart tcbl-x86-64-v3.service tcbl-panic-restart.service
+%service_del_postun_without_restart tcbl-x86-64-v3.service
 
 %files
 # sysctl
@@ -120,8 +119,6 @@ fi
 %{_prefix}/lib/systemd/user-preset/85-tcbl.preset
 # x86-64-v3 optimized libraries after automatic updates
 %{_unitdir}/tcbl-x86-64-v3.service
-# restart 5 seconds after a kernel panic, once the boot has completed
-%{_unitdir}/tcbl-panic-restart.service
 # logind: no text logins on the virtual consoles
 %dir %{_prefix}/lib/systemd/logind.conf.d
 %{_prefix}/lib/systemd/logind.conf.d/90-tcbl-no-text-login.conf
