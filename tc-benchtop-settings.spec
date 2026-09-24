@@ -18,6 +18,9 @@ BuildArch:      noarch
 Requires:       systemd
 # 90-tcbl-dns.conf makes NetworkManager hand DNS to systemd-resolved
 Requires:       systemd-resolved
+# openSUSE's macros that apply newly installed or changed presets
+BuildRequires:  systemd-presets-common-SUSE-devel
+%{?systemd_preset_requires}
 
 %description
 System-level defaults for TechniComp Benchtop Linux (an immutable
@@ -25,8 +28,9 @@ Tumbleweed-based openSUSE derivative, built against openSUSE:Factory): VM/networ
 scheduler, USB writeback and I2C access udev rules, THP/MGLRU tmpfiles policies,
 shutdown timeout, watchdog module blacklist, i2c-dev loading for OpenRGB,
 realtime-audio and memlock resource limits, the systemd-resolved DNS backend
-selection, the Brave enterprise policy, and the TCBL package repository
-with its signing key.
+selection, the Brave enterprise policy, the TCBL package repository with its
+signing key, and the services and reboot handling of automatic transactional
+updates.
 
 %prep
 # nothing to unpack - the configuration files are a tree in the scm checkout
@@ -54,6 +58,18 @@ fi
 install -d "%{buildroot}"
 ( cd "$treeroot" && cp -a --no-preserve=ownership usr etc "%{buildroot}/" )
 
+%pre
+%systemd_preset_pre
+%systemd_user_preset_pre
+
+%post
+%systemd_preset_post
+%systemd_user_preset_post
+
+%posttrans
+%systemd_preset_posttrans
+%systemd_user_preset_posttrans
+
 %files
 # sysctl
 %{_prefix}/lib/sysctl.d/90-tcbl-vm.conf
@@ -74,6 +90,12 @@ install -d "%{buildroot}"
 %{_prefix}/lib/modprobe.d/90-tcbl-blacklist-watchdogs.conf
 # modules-load
 %{_prefix}/lib/modules-load.d/90-tcbl-i2c-dev.conf
+# systemd presets (first match wins, so 85- sorts before openSUSE's files)
+%{_prefix}/lib/systemd/system-preset/85-tcbl.preset
+%{_prefix}/lib/systemd/user-preset/85-tcbl.preset
+# transactional-update: notify instead of rebooting after automatic updates
+%dir %{_distconfdir}/transactional-update.conf.d
+%{_distconfdir}/transactional-update.conf.d/90-tcbl-reboot.conf
 # NetworkManager
 %dir %{_prefix}/lib/NetworkManager
 %dir %{_prefix}/lib/NetworkManager/conf.d

@@ -12,6 +12,8 @@ Layout:
 - `usr/lib/systemd/system.conf.d/` - shorter default shutdown timeout
 - `usr/lib/modprobe.d/` - hardware watchdog blacklist
 - `usr/lib/modules-load.d/` - loads i2c-dev for OpenRGB's SMBus lighting control (RAM, some motherboards)
+- `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, update notifier), as on Aeon
+- `usr/etc/transactional-update.conf.d/` - after an automatic update, notify the logged-in users instead of rebooting
 - `usr/lib/NetworkManager/conf.d/` - systemd-resolved as the DNS backend
 - `etc/security/limits.d/` - realtime-audio scheduling and memlock limits
 - `etc/brave/policies/managed/` - Brave enterprise policy
@@ -24,4 +26,4 @@ Only the build descriptions (`*.spec`, `*.rpmlintrc`, `README.md`, `.obs/`) live
 
 All drop-ins use a `90-tcbl-` filename prefix so they sort lexicographically after openSUSE's own vendor defaults (which live at lower numbers such as `50-` in the same `/usr/lib` directories) and therefore win. Drop-ins are applied in filename order across `/usr/lib`, `/run` and `/etc`, and the last file wins; the `90` band still leaves `9x` and `/etc` free for a local administrator to override.
 
-One exception: `70-tcbl-i2c-uaccess.rules` sets the `uaccess` tag, which only takes effect in rules sorted before systemd's `73-seat-late.rules`.
+Two exceptions: `70-tcbl-i2c-uaccess.rules` sets the `uaccess` tag, which only takes effect in rules sorted before systemd's `73-seat-late.rules`; and systemd presets use the first line that matches a unit, so `85-tcbl.preset` sorts before openSUSE's `90-`, `95-` and `99-` preset files.
