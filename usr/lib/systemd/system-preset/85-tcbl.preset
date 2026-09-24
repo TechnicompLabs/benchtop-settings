@@ -11,8 +11,6 @@ enable create-dirs-from-rpmdb.service
 enable health-checker.service
 # adds x86-64-v3 optimized libraries after updates, on CPUs that support them
 enable tcbl-x86-64-v3.service
-# restarts 5 seconds after a kernel panic, once the boot has completed
-enable tcbl-panic-restart.service
 
 # graphical logins only: no text login on the first console (see
 # logind.conf.d/90-tcbl-no-text-login.conf for the others)

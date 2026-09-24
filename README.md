@@ -15,7 +15,6 @@ Layout:
 - `usr/lib/modules-load.d/` - loads i2c-dev for OpenRGB's SMBus lighting control (RAM, some motherboards)
 - `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, x86-64-v3 libraries, update notifier), as on Aeon; no text login on the first console
 - `usr/lib/systemd/system/` - `tcbl-x86-64-v3.service`: installs the x86-64-v3 optimized libraries after automatic updates, on CPUs that support them (forked from openSUSE's x86_64_v3-branding-Aeon)
-- `usr/lib/systemd/system/` - `tcbl-panic-restart.service`: restart 5 seconds after a kernel panic, set only once the boot has completed (the image's kernel command line has `panic=0`, so a snapshot that panics while starting stops instead of restarting into itself)
 - `usr/lib/systemd/logind.conf.d/` - graphical logins only: no text logins on the virtual consoles
 - `usr/etc/transactional-update.conf.d/` - after an automatic update, notify the logged-in users instead of rebooting
 - `usr/lib/NetworkManager/conf.d/` - systemd-resolved as the DNS backend
