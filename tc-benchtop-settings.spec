@@ -18,6 +18,8 @@ BuildArch:      noarch
 Requires:       systemd
 # 90-tcbl-dns.conf makes NetworkManager hand DNS to systemd-resolved
 Requires:       systemd-resolved
+# 90-tcbl-i2c-wheel.rules runs setfacl
+Requires:       acl
 # openSUSE's macros that apply newly installed or changed presets
 BuildRequires:  systemd-presets-common-SUSE-devel
 %{?systemd_preset_requires}
@@ -28,8 +30,9 @@ BuildRequires:  systemd-rpm-macros
 %description
 System-level defaults for TechniComp Benchtop Linux (an immutable
 Tumbleweed-based openSUSE derivative, built against openSUSE:Factory): VM/network/scheduler sysctls, I/O
-scheduler, USB writeback and I2C access udev rules, THP/MGLRU tmpfiles policies,
-shutdown timeout, watchdog module blacklist, i2c-dev loading for OpenRGB,
+scheduler and USB writeback udev rules, THP/MGLRU tmpfiles policies,
+shutdown timeout, watchdog module blacklist, i2c-dev loading and SMBus access for
+administrators (OpenRGB),
 realtime-audio and memlock resource limits, the systemd-resolved DNS backend
 selection, the Brave enterprise policy, the TCBL package repository with its
 signing key, the services and reboot handling of automatic transactional
@@ -70,8 +73,11 @@ install -d "%{buildroot}"
 %systemd_preset_post
 %systemd_user_preset_post
 %service_add_post tcbl-x86-64-v3.service
-# systemd enabled the tty1 login before this package's preset existed
+# systemd enabled the tty1 login before this package's preset existed. The
+# macro calls systemctl unguarded, and OBS's install test has no systemd.
+if [ -x /usr/bin/systemctl ]; then
 %systemd_preset_force_post -d getty@.service
+fi
 
 %posttrans
 %systemd_preset_posttrans
@@ -92,7 +98,7 @@ install -d "%{buildroot}"
 # udev
 %{_prefix}/lib/udev/rules.d/90-tcbl-iosched.rules
 %{_prefix}/lib/udev/rules.d/90-tcbl-usb-writeback.rules
-%{_prefix}/lib/udev/rules.d/70-tcbl-i2c-uaccess.rules
+%{_prefix}/lib/udev/rules.d/90-tcbl-i2c-wheel.rules
 # tmpfiles
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp.conf
 %{_prefix}/lib/tmpfiles.d/90-tcbl-mglru.conf
