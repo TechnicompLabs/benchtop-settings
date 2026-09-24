@@ -1,0 +1,11 @@
+# TechniComp Benchtop Linux: services of an immutable, transactional system, as
+# openSUSE Aeon's presets enable them; openSUSE's own presets are written for a
+# regular Tumbleweed install. systemd uses the first line that matches a unit,
+# so this file sorts before openSUSE's 90-, 95- and 99- preset files.
+
+# daily update into a new snapshot (see 90-tcbl-reboot.conf for the restart)
+enable transactional-update.timer
+# creates the /var directories of packages installed by transactional-update
+enable create-dirs-from-rpmdb.service
+# rolls back to the previous snapshot if the first boot after an update fails
+enable health-checker.service
