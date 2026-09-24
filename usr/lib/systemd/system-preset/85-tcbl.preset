@@ -9,3 +9,6 @@ enable transactional-update.timer
 enable create-dirs-from-rpmdb.service
 # rolls back to the previous snapshot if the first boot after an update fails
 enable health-checker.service
+# adds x86-64-v3 optimized libraries after updates, on CPUs that support them
+# (x86_64_v3-branding-Aeon, required by the pattern)
+enable x86_64_v3-transactional-update.service
