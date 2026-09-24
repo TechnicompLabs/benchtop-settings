@@ -12,7 +12,9 @@ Layout:
 - `usr/lib/systemd/system.conf.d/` - shorter default shutdown timeout
 - `usr/lib/modprobe.d/` - hardware watchdog blacklist
 - `usr/lib/modules-load.d/` - loads i2c-dev for OpenRGB's SMBus lighting control (RAM, some motherboards)
-- `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, x86-64-v3 libraries, update notifier), as on Aeon
+- `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, x86-64-v3 libraries, update notifier), as on Aeon; no text login on the first console
+- `usr/lib/systemd/system/` - `tcbl-x86-64-v3.service`: installs the x86-64-v3 optimized libraries after automatic updates, on CPUs that support them (forked from openSUSE's x86_64_v3-branding-Aeon)
+- `usr/lib/systemd/logind.conf.d/` - graphical logins only: no text logins on the virtual consoles
 - `usr/etc/transactional-update.conf.d/` - after an automatic update, notify the logged-in users instead of rebooting
 - `usr/lib/NetworkManager/conf.d/` - systemd-resolved as the DNS backend
 - `etc/security/limits.d/` - realtime-audio scheduling and memlock limits
@@ -27,3 +29,7 @@ Only the build descriptions (`*.spec`, `*.rpmlintrc`, `README.md`, `.obs/`) live
 All drop-ins use a `90-tcbl-` filename prefix so they sort lexicographically after openSUSE's own vendor defaults (which live at lower numbers such as `50-` in the same `/usr/lib` directories) and therefore win. Drop-ins are applied in filename order across `/usr/lib`, `/run` and `/etc`, and the last file wins; the `90` band still leaves `9x` and `/etc` free for a local administrator to override.
 
 Two exceptions: `70-tcbl-i2c-uaccess.rules` sets the `uaccess` tag, which only takes effect in rules sorted before systemd's `73-seat-late.rules`; and systemd presets use the first line that matches a unit, so `85-tcbl.preset` sorts before openSUSE's `90-`, `95-` and `99-` preset files.
+
+## Repository signing key
+
+`usr/lib/rpm/gnupg/keys/` holds the public key of the `home:technicomp` OBS project, which signs the TCBL repository; the image build imports it into the RPM database. OBS project keys are valid for about two years (`gpg --show-keys` shows the date). Before the key expires, extend it with `osc signkey --extend home:technicomp`, replace the file here with the key block from `osc signkey home:technicomp` (renamed if RPM names the extended key differently), and push, so that OBS republishes the repository with the extended key.

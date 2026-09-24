@@ -21,6 +21,9 @@ Requires:       systemd-resolved
 # openSUSE's macros that apply newly installed or changed presets
 BuildRequires:  systemd-presets-common-SUSE-devel
 %{?systemd_preset_requires}
+# macros for tcbl-x86-64-v3.service
+BuildRequires:  systemd-rpm-macros
+%{?systemd_ordering}
 
 %description
 System-level defaults for TechniComp Benchtop Linux (an immutable
@@ -29,8 +32,8 @@ scheduler, USB writeback and I2C access udev rules, THP/MGLRU tmpfiles policies,
 shutdown timeout, watchdog module blacklist, i2c-dev loading for OpenRGB,
 realtime-audio and memlock resource limits, the systemd-resolved DNS backend
 selection, the Brave enterprise policy, the TCBL package repository with its
-signing key, and the services and reboot handling of automatic transactional
-updates.
+signing key, the services and reboot handling of automatic transactional
+updates (including x86-64-v3 optimized libraries), and graphical-only logins.
 
 %prep
 # nothing to unpack - the configuration files are a tree in the scm checkout
@@ -61,14 +64,24 @@ install -d "%{buildroot}"
 %pre
 %systemd_preset_pre
 %systemd_user_preset_pre
+%service_add_pre tcbl-x86-64-v3.service
 
 %post
 %systemd_preset_post
 %systemd_user_preset_post
+%service_add_post tcbl-x86-64-v3.service
+# systemd enabled the tty1 login before this package's preset existed
+%systemd_preset_force_post -d getty@.service
 
 %posttrans
 %systemd_preset_posttrans
 %systemd_user_preset_posttrans
+
+%preun
+%service_del_preun tcbl-x86-64-v3.service
+
+%postun
+%service_del_postun_without_restart tcbl-x86-64-v3.service
 
 %files
 # sysctl
@@ -93,6 +106,11 @@ install -d "%{buildroot}"
 # systemd presets (first match wins, so 85- sorts before openSUSE's files)
 %{_prefix}/lib/systemd/system-preset/85-tcbl.preset
 %{_prefix}/lib/systemd/user-preset/85-tcbl.preset
+# x86-64-v3 optimized libraries after automatic updates
+%{_unitdir}/tcbl-x86-64-v3.service
+# logind: no text logins on the virtual consoles
+%dir %{_prefix}/lib/systemd/logind.conf.d
+%{_prefix}/lib/systemd/logind.conf.d/90-tcbl-no-text-login.conf
 # transactional-update: notify instead of rebooting after automatic updates
 %dir %{_distconfdir}/transactional-update.conf.d
 %{_distconfdir}/transactional-update.conf.d/90-tcbl-reboot.conf
