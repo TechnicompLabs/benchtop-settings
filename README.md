@@ -12,7 +12,7 @@ Layout:
 - `usr/lib/systemd/system.conf.d/` - shorter default shutdown timeout
 - `usr/lib/modprobe.d/` - hardware watchdog blacklist
 - `usr/lib/modules-load.d/` - loads i2c-dev for OpenRGB's SMBus lighting control (RAM, some motherboards)
-- `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, update notifier), as on Aeon
+- `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, x86-64-v3 libraries, update notifier), as on Aeon
 - `usr/etc/transactional-update.conf.d/` - after an automatic update, notify the logged-in users instead of rebooting
 - `usr/lib/NetworkManager/conf.d/` - systemd-resolved as the DNS backend
 - `etc/security/limits.d/` - realtime-audio scheduling and memlock limits
