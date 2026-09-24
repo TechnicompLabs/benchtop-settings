@@ -22,10 +22,11 @@ Requires:       systemd-resolved
 %description
 System-level defaults for TechniComp Benchtop Linux (an immutable
 Tumbleweed-based openSUSE derivative, built against openSUSE:Factory): VM/network/scheduler sysctls, I/O
-scheduler and USB writeback udev rules, THP/MGLRU tmpfiles policies,
-shutdown timeout, watchdog module blacklist, realtime-audio and memlock
-resource limits, the systemd-resolved DNS backend selection, and the Brave
-enterprise policy.
+scheduler, USB writeback and I2C access udev rules, THP/MGLRU tmpfiles policies,
+shutdown timeout, watchdog module blacklist, i2c-dev loading for OpenRGB,
+realtime-audio and memlock resource limits, the systemd-resolved DNS backend
+selection, the Brave enterprise policy, and the TCBL package repository
+with its signing key.
 
 %prep
 # nothing to unpack - the configuration files are a tree in the scm checkout
@@ -62,6 +63,7 @@ install -d "%{buildroot}"
 # udev
 %{_prefix}/lib/udev/rules.d/90-tcbl-iosched.rules
 %{_prefix}/lib/udev/rules.d/90-tcbl-usb-writeback.rules
+%{_prefix}/lib/udev/rules.d/70-tcbl-i2c-uaccess.rules
 # tmpfiles
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp.conf
 %{_prefix}/lib/tmpfiles.d/90-tcbl-mglru.conf
@@ -70,6 +72,8 @@ install -d "%{buildroot}"
 %{_prefix}/lib/systemd/system.conf.d/90-tcbl-shutdown.conf
 # modprobe
 %{_prefix}/lib/modprobe.d/90-tcbl-blacklist-watchdogs.conf
+# modules-load
+%{_prefix}/lib/modules-load.d/90-tcbl-i2c-dev.conf
 # NetworkManager
 %dir %{_prefix}/lib/NetworkManager
 %dir %{_prefix}/lib/NetworkManager/conf.d
@@ -83,5 +87,13 @@ install -d "%{buildroot}"
 %dir %{_sysconfdir}/brave/policies
 %dir %{_sysconfdir}/brave/policies/managed
 %config %{_sysconfdir}/brave/policies/managed/tc-benchtop.json
+# zypper: the TCBL package repository, above the openSUSE repositories
+%dir %{_sysconfdir}/zypp
+%dir %{_sysconfdir}/zypp/repos.d
+%config(noreplace) %{_sysconfdir}/zypp/repos.d/repo-tcbl.repo
+# signing key of that repository (the image's config.sh imports it)
+%dir %{_prefix}/lib/rpm/gnupg
+%dir %{_prefix}/lib/rpm/gnupg/keys
+%{_prefix}/lib/rpm/gnupg/keys/gpg-pubkey-9f72b2da-68976fe8.asc
 
 %changelog
