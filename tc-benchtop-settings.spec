@@ -102,6 +102,7 @@ install -d "%{buildroot}"
 # modprobe
 %{_prefix}/lib/modprobe.d/90-tcbl-blacklist-watchdogs.conf
 # modules-load
+%dir %{_prefix}/lib/modules-load.d
 %{_prefix}/lib/modules-load.d/90-tcbl-i2c-dev.conf
 # systemd presets (first match wins, so 85- sorts before openSUSE's files)
 %{_prefix}/lib/systemd/system-preset/85-tcbl.preset
