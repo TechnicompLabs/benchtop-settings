@@ -1,4 +1,4 @@
-# TechniComp Benchtop Linux - I/O scheduler selection
+# Technicomp Benchtop Linux - I/O scheduler selection
 # Source: notes Performance/Storage and IO.md
 # BFQ for rotational disks and slow removable USB flash (fairness/latency);
 # kyber for SSD/NVMe (low-overhead multiqueue). USB SSD/NVMe enclosures report

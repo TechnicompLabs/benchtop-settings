@@ -1,6 +1,6 @@
 #
 # spec file for package tc-benchtop-settings
-# TechniComp Benchtop Linux - system configuration defaults.
+# Technicomp Benchtop Linux - system configuration defaults.
 #
 # Built directly from git (OBS scmsync). The configuration files are laid out
 # in this repository as a filesystem tree (usr/, etc/) that mirrors their final
@@ -11,7 +11,7 @@
 Name:           tc-benchtop-settings
 Version:        0.1.0
 Release:        0
-Summary:        TechniComp Benchtop Linux system configuration defaults
+Summary:        Technicomp Benchtop Linux system configuration defaults
 License:        MIT
 URL:            https://github.com/TechnicompLabs/benchtop-settings
 BuildArch:      noarch
@@ -20,6 +20,8 @@ Requires:       systemd
 Requires:       systemd-resolved
 # 90-tcbl-i2c-wheel.rules runs setfacl
 Requires:       acl
+# the rpm macro that keeps the htop, nvtop and atop launchers out
+Requires:       %{name}-rpm = %{version}-%{release}
 # openSUSE's macros that apply newly installed or changed presets
 BuildRequires:  systemd-presets-common-SUSE-devel
 %{?systemd_preset_requires}
@@ -28,7 +30,7 @@ BuildRequires:  systemd-rpm-macros
 %{?systemd_ordering}
 
 %description
-System-level defaults for TechniComp Benchtop Linux (an immutable
+System-level defaults for Technicomp Benchtop Linux (an immutable
 Tumbleweed-based openSUSE derivative, built against openSUSE:Factory): VM/network/scheduler sysctls, I/O
 scheduler and USB writeback udev rules, THP/MGLRU tmpfiles policies,
 shutdown timeouts (system and user session), watchdog module blacklist, i2c-dev loading and SMBus access for
@@ -37,6 +39,15 @@ realtime-audio and memlock resource limits, the systemd-resolved DNS backend
 selection, the Brave enterprise policy, the TCBL package repository with its
 signing key, the services and reboot handling of automatic transactional
 updates (including x86-64-v3 optimized libraries), and graphical-only logins.
+
+%package rpm
+Summary:        Files that rpm does not install on Technicomp Benchtop Linux
+
+%description rpm
+An rpm macro (%%_netsharedpath) naming files that rpm does not install: the
+desktop launchers of the terminal programs htop, nvtop and atop, which would
+otherwise appear in the GNOME app grid. The image build installs this package
+before all others, so that the macro applies to every package in the image.
 
 %prep
 # nothing to unpack - the configuration files are a tree in the scm checkout
@@ -146,5 +157,8 @@ fi
 %dir %{_prefix}/lib/rpm/gnupg
 %dir %{_prefix}/lib/rpm/gnupg/keys
 %{_prefix}/lib/rpm/gnupg/keys/gpg-pubkey-9f72b2da-68976fe8.asc
+
+%files rpm
+%{_prefix}/lib/rpm/macros.d/macros.tcbl-excludes
 
 %changelog

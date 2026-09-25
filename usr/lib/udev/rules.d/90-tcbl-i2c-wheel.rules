@@ -1,4 +1,4 @@
-# TechniComp Benchtop Linux: administrators (group wheel) get the I2C/SMBus
+# Technicomp Benchtop Linux: administrators (group wheel) get the I2C/SMBus
 # device nodes (OpenRGB's RAM and motherboard lighting). openSUSE's
 # 60-openrgb.rules grants them to the openrgb group, which has no members
 # unless someone is added to it. Numbered after 60-openrgb.rules, whose RUN=

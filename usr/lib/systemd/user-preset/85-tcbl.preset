@@ -1,3 +1,3 @@
-# TechniComp Benchtop Linux: tells logged-in users when an update is installed
+# Technicomp Benchtop Linux: tells logged-in users when an update is installed
 # and a restart applies it (see 90-tcbl-reboot.conf), as on openSUSE Aeon.
 enable transactional-update-notifier.service

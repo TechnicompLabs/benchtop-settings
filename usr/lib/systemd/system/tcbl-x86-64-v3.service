@@ -1,4 +1,4 @@
-# TechniComp Benchtop Linux: after an automatic update, install the x86-64-v3
+# Technicomp Benchtop Linux: after an automatic update, install the x86-64-v3
 # optimized builds of the system libraries (glibc HWCAPS) on top of the snapshot
 # that the update created, on processors that support x86-64-v3; on older
 # processors the CPU conditions below skip it. "pkg in --force" reinstalls the
