@@ -1,6 +1,6 @@
 # tc-benchtop-settings
 
-System-defaults RPM for **TechniComp Benchtop Linux** (an immutable Tumbleweed-based openSUSE derivative, built against openSUSE:Factory). Built on OBS directly from this repository via scmsync.
+System-defaults RPM for **Technicomp Benchtop Linux** (an immutable Tumbleweed-based openSUSE derivative, built against openSUSE:Factory). Built on OBS directly from this repository via scmsync.
 
 The configuration files are laid out as a filesystem tree that mirrors their final install paths, in the style of [pop-os/default-settings](https://github.com/pop-os/default-settings) and [CachyOS/CachyOS-Settings](https://github.com/CachyOS/CachyOS-Settings). The spec installs the tree verbatim into the buildroot.
 
@@ -22,6 +22,7 @@ Layout:
 - `etc/brave/policies/managed/` - Brave enterprise policy
 - `etc/zypp/repos.d/` - the TCBL package repository (OBS home:technicomp:benchtop), at priority 90, above the openSUSE repositories
 - `usr/lib/rpm/gnupg/keys/` - that repository's signing key (the home:technicomp OBS key), imported by the image build
+- `usr/lib/rpm/macros.d/` - files that rpm does not install (`%_netsharedpath`): the GNOME launchers of the terminal programs htop, nvtop and atop. Packaged separately as `tc-benchtop-settings-rpm`, which the image installs before all other packages
 
 Only the build descriptions (`*.spec`, `*.rpmlintrc`, `README.md`, `.obs/`) live at the repository root. Per-file provenance is in the TC Benchtop design notes under `Performance/`.
 

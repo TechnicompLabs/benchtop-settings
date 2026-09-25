@@ -1,4 +1,4 @@
-# TechniComp Benchtop Linux - tame writeback on slow removable USB storage
+# Technicomp Benchtop Linux - tame writeback on slow removable USB storage
 # Source: notes Performance/Storage and IO.md
 # Small per-device dirty budget so userspace cannot get far ahead of a slow USB
 # stick. Deliberately per-device: does NOT touch global vm.dirty_* (which would
