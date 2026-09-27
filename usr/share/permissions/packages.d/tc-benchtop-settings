@@ -1,0 +1,6 @@
+# Technicomp Benchtop Linux: the permissions(5) drop-in of tc-benchtop-settings.
+#
+# permctl reads the profile variants of a drop-in (tc-benchtop-settings.easy
+# and tc-benchtop-settings.secure) only when its base file, this one, exists.
+# The base file itself sets nothing, so the paranoid profile keeps openSUSE's
+# settings.

@@ -20,34 +20,47 @@ Requires:       systemd
 Requires:       systemd-resolved
 # 90-tcbl-i2c-wheel.rules runs setfacl
 Requires:       acl
-# the rpm macro that keeps the htop, nvtop and atop launchers out
+# administrators are the members of group wheel: 90-tcbl-i2c-wheel.rules and
+# the permissions drop-in name that group, and the post-install script applies
+# the drop-in
+Requires:       group(wheel)
+Requires(post): group(wheel)
+# tcbl-flathub.service adds Flathub with flatpak
+Requires:       flatpak
+# the rpm macro that keeps the launchers of terminal programs out
 Requires:       %{name}-rpm = %{version}-%{release}
 # openSUSE's macros that apply newly installed or changed presets
 BuildRequires:  systemd-presets-common-SUSE-devel
 %{?systemd_preset_requires}
-# macros for tcbl-x86-64-v3.service
+# macros for tcbl-x86-64-v3.service and tcbl-flathub.service
 BuildRequires:  systemd-rpm-macros
 %{?systemd_ordering}
+# Flathub's remote file, which the install section copies for
+# tcbl-flathub.service
+BuildRequires:  flatpak-remote-flathub
 
 %description
 System-level defaults for Technicomp Benchtop Linux (an immutable
 Tumbleweed-based openSUSE derivative, built against openSUSE:Factory): VM/network/scheduler sysctls, I/O
 scheduler and USB writeback udev rules, THP/MGLRU tmpfiles policies,
 shutdown timeouts (system and user session), watchdog module blacklist, i2c-dev loading and SMBus access for
-administrators (OpenRGB),
+administrators (OpenRGB), network capture without root for administrators
+(Wireshark's dumpcap),
 realtime-audio and memlock resource limits, the systemd-resolved DNS backend
 selection, the Brave enterprise policy, the TCBL package repository with its
 signing key, the services and reboot handling of automatic transactional
-updates (including x86-64-v3 optimized libraries), and graphical-only logins.
+updates (including x86-64-v3 optimized libraries), graphical-only logins, and
+Flathub in each user's own Flatpak installation.
 
 %package rpm
 Summary:        Files that rpm does not install on Technicomp Benchtop Linux
 
 %description rpm
 An rpm macro (%%_netsharedpath) naming files that rpm does not install: the
-desktop launchers of the terminal programs htop, nvtop and atop, which would
-otherwise appear in the GNOME app grid. The image build installs this package
-before all others, so that the macro applies to every package in the image.
+desktop launchers of the terminal programs htop, nvtop and atop and of
+amdgpu_top's terminal interface, which would otherwise appear in the GNOME app
+grid. The image build installs this package before all others, so that the
+macro applies to every package in the image.
 
 %prep
 # nothing to unpack - the configuration files are a tree in the scm checkout
@@ -74,20 +87,33 @@ if [ -z "$treeroot" ]; then
 fi
 install -d "%{buildroot}"
 ( cd "$treeroot" && cp -a --no-preserve=ownership usr etc "%{buildroot}/" )
+# Flathub's remote file (its URL and signing key) for tcbl-flathub.service,
+# copied from openSUSE's flatpak-remote-flathub. The image does not install that
+# package, which adds Flathub system-wide.
+install -D -m 0644 %{_sysconfdir}/flatpak/remotes.d/flathub.flatpakrepo \
+    %{buildroot}%{_datadir}/%{name}/flathub.flatpakrepo
 
 %pre
 %systemd_preset_pre
 %systemd_user_preset_pre
 %service_add_pre tcbl-x86-64-v3.service
+%systemd_user_pre tcbl-flathub.service
 
 %post
 %systemd_preset_post
 %systemd_user_preset_post
 %service_add_post tcbl-x86-64-v3.service
+%systemd_user_post tcbl-flathub.service
 # systemd enabled the tty1 login before this package's preset existed. The
 # macro calls systemctl unguarded, and OBS's install test has no systemd.
 if [ -x /usr/bin/systemctl ]; then
 %systemd_preset_force_post -d getty@.service
+fi
+# Wireshark's dumpcap, if installed: apply the permissions drop-in, which lets
+# administrators capture without root. When Wireshark is installed later, its
+# own post-install script applies the drop-in.
+if [ -e /usr/bin/dumpcap ]; then
+%set_permissions /usr/bin/dumpcap
 fi
 
 %posttrans
@@ -96,9 +122,15 @@ fi
 
 %preun
 %service_del_preun tcbl-x86-64-v3.service
+%systemd_user_preun tcbl-flathub.service
 
 %postun
 %service_del_postun_without_restart tcbl-x86-64-v3.service
+%systemd_user_postun tcbl-flathub.service
+# after removal, dumpcap returns to openSUSE's permissions
+if [ $1 -eq 0 ] && [ -e /usr/bin/dumpcap ]; then
+%set_permissions /usr/bin/dumpcap
+fi
 
 %files
 # sysctl
@@ -130,6 +162,21 @@ fi
 %{_prefix}/lib/systemd/user-preset/85-tcbl.preset
 # x86-64-v3 optimized libraries after automatic updates
 %{_unitdir}/tcbl-x86-64-v3.service
+# Flathub for each user: the user service that adds it at their first login,
+# and Flathub's remote file
+%{_userunitdir}/tcbl-flathub.service
+%dir %{_datadir}/%{name}
+%{_datadir}/%{name}/flathub.flatpakrepo
+# GNOME Software: Flatpak files opened from outside it install per user
+%dir %{_datadir}/glib-2.0
+%dir %{_datadir}/glib-2.0/schemas
+%{_datadir}/glib-2.0/schemas/90-tcbl-gnome-software.gschema.override
+# permissions: administrators capture with Wireshark's dumpcap without root
+%dir %{_datadir}/permissions
+%dir %{_datadir}/permissions/packages.d
+%{_datadir}/permissions/packages.d/tc-benchtop-settings
+%{_datadir}/permissions/packages.d/tc-benchtop-settings.easy
+%{_datadir}/permissions/packages.d/tc-benchtop-settings.secure
 # logind: no text logins on the virtual consoles
 %dir %{_prefix}/lib/systemd/logind.conf.d
 %{_prefix}/lib/systemd/logind.conf.d/90-tcbl-no-text-login.conf

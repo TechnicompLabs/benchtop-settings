@@ -1,3 +1,6 @@
 # Technicomp Benchtop Linux: tells logged-in users when an update is installed
 # and a restart applies it (see 90-tcbl-reboot.conf), as on openSUSE Aeon.
 enable transactional-update-notifier.service
+
+# adds Flathub to each user's own Flatpak installation at their first login
+enable tcbl-flathub.service

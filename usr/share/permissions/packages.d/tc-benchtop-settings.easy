@@ -1,0 +1,9 @@
+# Technicomp Benchtop Linux: administrators (group wheel) capture network
+# traffic without root. Wireshark's capture program, dumpcap, holds the capture
+# capabilities. openSUSE's profile lets only the wireshark group run it, and
+# that group has no members unless someone is added to it. permctl reads this
+# drop-in after openSUSE's profiles, so this entry replaces openSUSE's; an entry
+# in /etc/permissions.local still overrides it.
+:package: wireshark
+/usr/bin/dumpcap                                        root:wheel        0750
+ +capabilities cap_net_raw,cap_net_admin=ep

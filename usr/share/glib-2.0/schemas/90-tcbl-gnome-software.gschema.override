@@ -1,0 +1,9 @@
+# Technicomp Benchtop Linux: GNOME Software installs Flatpak files opened from
+# outside it (the .flatpakref that the Install button on flathub.org downloads,
+# a .flatpak bundle, a .flatpakrepo) into the user's own installation, where
+# Flathub is (tcbl-flathub.service), rather than system-wide, its default.
+# glib-compile-schemas reads override files in name order, and a later file
+# replaces an earlier file's value; glib2-tools recompiles the schemas when this
+# file is installed or removed.
+[org.gnome.software]
+install-bundles-system-wide=false
