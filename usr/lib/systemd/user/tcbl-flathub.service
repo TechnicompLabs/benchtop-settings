@@ -1,0 +1,22 @@
+# Technicomp Benchtop Linux: adds Flathub to each user's own Flatpak
+# installation at their first login, so that apps from Flathub install per user,
+# without an administrator password. The image does not configure Flathub
+# system-wide (config.kiwi keeps openSUSE's flatpak-remote-flathub out): with
+# Flathub in both installations, flatpak asks on every install which one to use.
+# The service runs once for each user; the marker file keeps a user who removes
+# Flathub from getting it back.
+[Unit]
+Description=Add Flathub to the user's Flatpak installation
+# not for system accounts (the login screen, GNOME's initial setup)
+ConditionUser=!@system
+ConditionPathExists=!%S/tc-benchtop/flathub-added
+
+[Service]
+Type=oneshot
+StateDirectory=tc-benchtop
+# works offline: the file carries Flathub's URL and signing key
+ExecStart=/usr/bin/flatpak remote-add --user --if-not-exists flathub /usr/share/tc-benchtop-settings/flathub.flatpakrepo
+ExecStartPost=/usr/bin/touch %S/tc-benchtop/flathub-added
+
+[Install]
+WantedBy=default.target

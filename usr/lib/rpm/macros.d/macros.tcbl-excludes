@@ -1,8 +1,9 @@
 # Technicomp Benchtop Linux: files that rpm does not install.
 #
-# htop, nvtop and atop are terminal programs. Their launchers would put them in
-# the GNOME app grid: htop's and nvtop's come from upstream, atop's from
-# openSUSE's package.
+# htop, nvtop and atop are terminal programs, and amdgpu_top has a terminal
+# interface besides its graphical one. Their terminal launchers would put them
+# in the GNOME app grid: htop's, nvtop's and amdgpu_top's come from upstream,
+# atop's from openSUSE's package.
 #
 # rpm documents this macro as "a colon separated list of paths where files
 # should *not* be installed". rpm skips these paths on every install and update,
@@ -13,4 +14,4 @@
 #
 # A launcher that upstream renames is no longer matched and reappears; add its
 # new path here. "rpm --eval %_netsharedpath" shows the list in effect.
-%_netsharedpath /usr/share/applications/htop.desktop:/usr/share/applications/nvtop.desktop:/usr/share/applications/atop.desktop
+%_netsharedpath /usr/share/applications/htop.desktop:/usr/share/applications/nvtop.desktop:/usr/share/applications/atop.desktop:/usr/share/applications/amdgpu_top-tui.desktop
