@@ -11,7 +11,7 @@ Layout:
 - `usr/lib/tmpfiles.d/` - Transparent Huge Pages and Multi-Gen LRU policies
 - `usr/lib/systemd/system.conf.d/` - shorter default shutdown timeout (15 seconds per service)
 - `usr/lib/systemd/user.conf.d/`, `usr/lib/systemd/system/user@.service.d/` - the same 15-second limit for the user session and its applications
-- `usr/lib/modprobe.d/` - hardware watchdog blacklist
+- `usr/lib/modprobe.d/` - hardware watchdog blacklist; the UEFI backend of pstore switched on, so that the kernel log of a crash survives the reboot (systemd-pstore moves it to `/var/lib/systemd/pstore` at the next boot)
 - `usr/lib/modules-load.d/` - loads i2c-dev for OpenRGB's SMBus lighting control (RAM, some motherboards)
 - `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, x86-64-v3 libraries, update notifier), as on Aeon; the per-user Flathub service; no text login on the first console
 - `usr/lib/systemd/system/` - `tcbl-x86-64-v3.service`: installs the x86-64-v3 optimized libraries after automatic updates, on CPUs that support them (forked from openSUSE's x86_64_v3-branding-Aeon)
@@ -27,7 +27,7 @@ Layout:
 - `usr/lib/rpm/gnupg/keys/` - that repository's signing key (the home:technicomp OBS key), imported by the image build
 - `usr/lib/rpm/macros.d/` - files that rpm does not install (`%_netsharedpath`): the GNOME launchers of the terminal programs htop, nvtop and atop, and of amdgpu_top's terminal interface. Packaged separately as `tc-benchtop-settings-rpm`, which the image installs before all other packages
 
-Only the build descriptions (`*.spec`, `*.rpmlintrc`, `README.md`, `.obs/`) live at the repository root. Per-file provenance is in the TC Benchtop design notes under `Performance/`.
+Only the build descriptions (`*.spec`, `README.md`, `.obs/`) live at the repository root. Per-file provenance is in the TC Benchtop design notes under `Performance/`.
 
 ## Precedence
 
