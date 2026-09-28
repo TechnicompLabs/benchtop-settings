@@ -43,7 +43,8 @@ BuildRequires:  flatpak-remote-flathub
 System-level defaults for Technicomp Benchtop Linux (an immutable
 Tumbleweed-based openSUSE derivative, built against openSUSE:Factory): VM/network/scheduler sysctls, I/O
 scheduler and USB writeback udev rules, THP/MGLRU tmpfiles policies,
-shutdown timeouts (system and user session), watchdog module blacklist, i2c-dev loading and SMBus access for
+shutdown timeouts (system and user session), watchdog module blacklist, crash
+logs kept across reboots (UEFI pstore), i2c-dev loading and SMBus access for
 administrators (OpenRGB), network capture without root for administrators
 (Wireshark's dumpcap),
 realtime-audio and memlock resource limits, the systemd-resolved DNS backend
@@ -154,6 +155,7 @@ fi
 %{_unitdir}/user@.service.d/90-tcbl-shutdown.conf
 # modprobe
 %{_prefix}/lib/modprobe.d/90-tcbl-blacklist-watchdogs.conf
+%{_prefix}/lib/modprobe.d/90-tcbl-pstore.conf
 # modules-load
 %dir %{_prefix}/lib/modules-load.d
 %{_prefix}/lib/modules-load.d/90-tcbl-i2c-dev.conf
