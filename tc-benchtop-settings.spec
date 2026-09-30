@@ -27,6 +27,8 @@ Requires:       group(wheel)
 Requires(post): group(wheel)
 # tcbl-flathub.service adds Flathub with flatpak
 Requires:       flatpak
+# 59-tcbl-family-prefer.conf is a fontconfig configuration
+Requires:       fontconfig
 # the rpm macro that keeps the launchers of terminal programs out
 Requires:       %{name}-rpm = %{version}-%{release}
 # openSUSE's macros that apply newly installed or changed presets
@@ -41,15 +43,19 @@ BuildRequires:  flatpak-remote-flathub
 
 %description
 System-level defaults for Technicomp Benchtop Linux (an immutable
-Tumbleweed-based openSUSE derivative, built against openSUSE:Factory): VM/network/scheduler sysctls, I/O
-scheduler and USB writeback udev rules, THP/MGLRU tmpfiles policies,
-shutdown timeouts (system and user session), watchdog module blacklist, crash
-logs kept across reboots (UEFI pstore), i2c-dev loading and SMBus access for
+Tumbleweed-based openSUSE derivative, built against openSUSE:Factory):
+VM/network/scheduler sysctls, Magic SysRq keys and lockup detectors off, I/O
+scheduler and USB writeback udev rules, THP (with the THP shrinker) and MGLRU
+tmpfiles policies, core dumps deleted after 3 days, shutdown timeouts (system
+and user session), boot status messages only for failed or slow steps, watchdog
+module blacklist, SATA staggered spin-up ignored, amdgpu for Southern Islands
+and Sea Islands GPUs, crash logs kept across reboots (UEFI pstore), ntsync
+loading for Wine and Proton, i2c-dev loading and SMBus access for
 administrators (OpenRGB), network capture without root for administrators
-(Wireshark's dumpcap),
-realtime-audio and memlock resource limits, the systemd-resolved DNS backend
-selection, the Brave enterprise policy, the TCBL package repository with its
-signing key, the services and reboot handling of automatic transactional
+(Wireshark's dumpcap), realtime-audio and memlock resource limits, the
+systemd-resolved DNS backend selection, the Brave enterprise policy, Noto as
+the default sans-serif and monospace fonts, the TCBL package repository with
+its signing key, the services and reboot handling of automatic transactional
 updates (including x86-64-v3 optimized libraries), graphical-only logins, and
 Flathub in each user's own Flatpak installation.
 
@@ -93,6 +99,11 @@ install -d "%{buildroot}"
 # package, which adds Flathub system-wide.
 install -D -m 0644 %{_sysconfdir}/flatpak/remotes.d/flathub.flatpakrepo \
     %{buildroot}%{_datadir}/%{name}/flathub.flatpakrepo
+# fontconfig reads /etc/fonts/conf.d; the link enables the font configuration,
+# as openSUSE's font packages link theirs
+install -d %{buildroot}%{_sysconfdir}/fonts/conf.d
+ln -s ../../..%{_datadir}/fontconfig/conf.avail/59-tcbl-family-prefer.conf \
+    %{buildroot}%{_sysconfdir}/fonts/conf.d/59-tcbl-family-prefer.conf
 
 %pre
 %systemd_preset_pre
@@ -139,26 +150,34 @@ fi
 %{_prefix}/lib/sysctl.d/90-tcbl-network.conf
 %{_prefix}/lib/sysctl.d/90-tcbl-mtu-probing.conf
 %{_prefix}/lib/sysctl.d/90-tcbl-splitlock.conf
+%{_prefix}/lib/sysctl.d/90-tcbl-sysrq.conf
+%{_prefix}/lib/sysctl.d/90-tcbl-watchdog.conf
 # udev
 %{_prefix}/lib/udev/rules.d/90-tcbl-iosched.rules
 %{_prefix}/lib/udev/rules.d/90-tcbl-usb-writeback.rules
 %{_prefix}/lib/udev/rules.d/90-tcbl-i2c-wheel.rules
 # tmpfiles
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp.conf
+%{_prefix}/lib/tmpfiles.d/90-tcbl-thp-shrinker.conf
 %{_prefix}/lib/tmpfiles.d/90-tcbl-mglru.conf
+%{_prefix}/lib/tmpfiles.d/90-tcbl-coredump.conf
 # systemd
 %dir %{_prefix}/lib/systemd/system.conf.d
 %{_prefix}/lib/systemd/system.conf.d/90-tcbl-shutdown.conf
+%{_prefix}/lib/systemd/system.conf.d/90-tcbl-show-status.conf
 %dir %{_prefix}/lib/systemd/user.conf.d
 %{_prefix}/lib/systemd/user.conf.d/90-tcbl-shutdown.conf
 %dir %{_unitdir}/user@.service.d
 %{_unitdir}/user@.service.d/90-tcbl-shutdown.conf
 # modprobe
 %{_prefix}/lib/modprobe.d/90-tcbl-blacklist-watchdogs.conf
+%{_prefix}/lib/modprobe.d/90-tcbl-amdgpu.conf
+%{_prefix}/lib/modprobe.d/90-tcbl-ahci.conf
 %{_prefix}/lib/modprobe.d/90-tcbl-pstore.conf
 # modules-load
 %dir %{_prefix}/lib/modules-load.d
 %{_prefix}/lib/modules-load.d/90-tcbl-i2c-dev.conf
+%{_prefix}/lib/modules-load.d/90-tcbl-ntsync.conf
 # systemd presets (first match wins, so 85- sorts before openSUSE's files)
 %{_prefix}/lib/systemd/system-preset/85-tcbl.preset
 %{_prefix}/lib/systemd/user-preset/85-tcbl.preset
@@ -173,6 +192,9 @@ fi
 %dir %{_datadir}/glib-2.0
 %dir %{_datadir}/glib-2.0/schemas
 %{_datadir}/glib-2.0/schemas/90-tcbl-gnome-software.gschema.override
+# fontconfig: Noto as the default sans-serif and monospace fonts
+%{_datadir}/fontconfig/conf.avail/59-tcbl-family-prefer.conf
+%config %{_sysconfdir}/fonts/conf.d/59-tcbl-family-prefer.conf
 # permissions: administrators capture with Wireshark's dumpcap without root
 %dir %{_datadir}/permissions
 %dir %{_datadir}/permissions/packages.d

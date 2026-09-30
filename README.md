@@ -2,20 +2,21 @@
 
 System-defaults RPM for **Technicomp Benchtop Linux** (an immutable Tumbleweed-based openSUSE derivative, built against openSUSE:Factory). Built on OBS directly from this repository via scmsync.
 
-The configuration files are laid out as a filesystem tree that mirrors their final install paths, in the style of [pop-os/default-settings](https://github.com/pop-os/default-settings) and [CachyOS/CachyOS-Settings](https://github.com/CachyOS/CachyOS-Settings). The spec installs the tree verbatim into the buildroot.
+The configuration files are laid out as a filesystem tree that mirrors their final install paths, in the style of [pop-os/default-settings](https://github.com/pop-os/default-settings) and [CachyOS/CachyOS-Settings](https://github.com/CachyOS/CachyOS-Settings). The spec installs the tree verbatim into the buildroot. Settings that can be made outside the kernel command line (sysctl.d, modprobe.d, systemd configuration) are made here rather than in the image's kernel command line.
 
 Layout:
 
-- `usr/lib/sysctl.d/` - VM defaults, network (CUBIC + fq_codel, MTU probing), split-lock mitigation off
+- `usr/lib/sysctl.d/` - VM defaults, network (CUBIC + fq_codel, MTU probing, a longer receive backlog), split-lock mitigation off, soft and hard lockup detectors off, Magic SysRq keys off
 - `usr/lib/udev/rules.d/` - I/O scheduler selection (BFQ/kyber), slow-USB writeback limiting, and I2C/SMBus access for administrators (wheel) for OpenRGB
-- `usr/lib/tmpfiles.d/` - Transparent Huge Pages and Multi-Gen LRU policies
-- `usr/lib/systemd/system.conf.d/` - shorter default shutdown timeout (15 seconds per service)
+- `usr/lib/tmpfiles.d/` - Transparent Huge Pages (with the THP shrinker) and Multi-Gen LRU policies, written at boot only (`w!`); core dumps deleted after 3 days instead of systemd's 2 weeks
+- `usr/lib/systemd/system.conf.d/` - shorter default shutdown timeout (15 seconds per service); service status messages on the console only when a step fails or boot or shutdown takes more than 25 seconds
 - `usr/lib/systemd/user.conf.d/`, `usr/lib/systemd/system/user@.service.d/` - the same 15-second limit for the user session and its applications
-- `usr/lib/modprobe.d/` - hardware watchdog blacklist; the UEFI backend of pstore switched on, so that the kernel log of a crash survives the reboot (systemd-pstore moves it to `/var/lib/systemd/pstore` at the next boot)
-- `usr/lib/modules-load.d/` - loads i2c-dev for OpenRGB's SMBus lighting control (RAM, some motherboards)
+- `usr/lib/modprobe.d/` - hardware watchdog blacklist (Intel TCO, AMD SP5100 TCO, ACPI WDAT); staggered SATA spin-up ignored (libahci); amdgpu instead of radeon for Southern Islands and Sea Islands GPUs (the kernel's default since 6.19, needed on kernel-longterm 6.18); the UEFI backend of pstore switched on, so that the kernel log of a crash survives the reboot (systemd-pstore moves it to `/var/lib/systemd/pstore` at the next boot)
+- `usr/lib/modules-load.d/` - loads i2c-dev for OpenRGB's SMBus lighting control (RAM, some motherboards), and ntsync, whose `/dev/ntsync` Wine and Proton use for Windows synchronization primitives
 - `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, x86-64-v3 libraries, update notifier), as on Aeon; the per-user Flathub service; no text login on the first console
 - `usr/lib/systemd/system/` - `tcbl-x86-64-v3.service`: installs the x86-64-v3 optimized libraries after automatic updates, on CPUs that support them (forked from openSUSE's x86_64_v3-branding-Aeon)
 - `usr/lib/systemd/user/` - `tcbl-flathub.service`: adds Flathub to each user's own Flatpak installation at their first login, once, so that apps install per user without an administrator password. It uses Flathub's remote file, which the spec copies at build time from openSUSE's `flatpak-remote-flathub` to `/usr/share/tc-benchtop-settings/`; the image leaves that package out, because it adds Flathub system-wide
+- `usr/share/fontconfig/conf.avail/` - Noto as the default sans-serif and monospace fonts, as upstream fontconfig has set them since 2.14, the configuration that Flatpak runtimes ship (openSUSE's fonts-config would otherwise choose Roboto and Source Code Pro). Flatpak apps do not read it: Flatpak exposes the host's fonts but not its fontconfig configuration. The spec links it into `/etc/fonts/conf.d`
 - `usr/share/glib-2.0/schemas/` - GNOME Software installs Flatpak files opened from outside it (such as the `.flatpakref` that flathub.org's Install button downloads) per user
 - `usr/share/permissions/packages.d/` - administrators (wheel) capture network traffic without root: a permissions(5) drop-in that gives Wireshark's `dumpcap` to group wheel instead of the wireshark group, which has no members unless someone is added to it, in the easy and secure profiles (the paranoid profile keeps openSUSE's setting). permctl applies it in this package's post-install script and in Wireshark's
 - `usr/lib/systemd/logind.conf.d/` - graphical logins only: no text logins on the virtual consoles
@@ -34,6 +35,10 @@ Only the build descriptions (`*.spec`, `README.md`, `.obs/`) live at the reposit
 All drop-ins use a `90-tcbl-` filename prefix so they sort lexicographically after openSUSE's own vendor defaults (which live at lower numbers such as `50-` in the same `/usr/lib` directories) and therefore win. Drop-ins are applied in filename order across `/usr/lib`, `/run` and `/etc`, and the last file wins; the `90` band still leaves `9x` and `/etc` free for a local administrator to override.
 
 One exception: systemd presets use the first line that matches a unit, so `85-tcbl.preset` sorts before openSUSE's `90-`, `95-` and `99-` preset files.
+
+tmpfiles.d is the other exception: when several files configure one path, the file that sorts first wins, and conflicting lines in later files are ignored. The core-dump drop-in therefore uses an `e` line, which does not conflict with the `d` line that systemd's `systemd.conf` has for the same directory; both apply, and the shorter cleanup age takes effect.
+
+fontconfig also applies the first preference it reads, so `59-tcbl-family-prefer.conf` is numbered to sort after the administrator's and the user's font preferences (`local.conf` at 55, the user's configuration at 56, fonts-config's settings at 58) and before openSUSE's default lists (60 and 61).
 
 The permissions drop-in has no number: permissions(5) drop-ins are per package, so it is named after this package. permctl reads all drop-ins after openSUSE's central profiles, so its entry replaces openSUSE's, and reads `/etc/permissions.local` after the drop-ins.
 
