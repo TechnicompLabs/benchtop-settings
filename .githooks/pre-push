@@ -1,0 +1,35 @@
+#!/bin/sh
+# Technicomp Benchtop Linux: before each push, check whether the files that
+# tc-benchtop-settings copies from other projects changed upstream
+# (scripts/check-upstream, UPSTREAM.md), and remind about them. It only
+# reminds: the push goes ahead whatever it finds, and also when a repository
+# cannot be reached. git push --no-verify skips it.
+#
+# Enabled once in each clone with: git config core.hooksPath .githooks
+root=$(git rev-parse --show-toplevel) || exit 0
+out=$("$root/scripts/check-upstream" 2>&1)
+status=$?
+if [ $status -eq 0 ]; then
+	echo "pre-push: the copied files are unchanged upstream." >&2
+	exit 0
+fi
+printf '%s\n' "$out" >&2
+# the indented lines of the report are the changes; a source that could not
+# be reached does not hide the changes found in the others
+if printf '%s\n' "$out" | grep -q '^  '; then
+	cat >&2 <<'MSG'
+
+  ----------------------------------------------------------------------
+  Reminder: files that tc-benchtop-settings copies changed upstream.
+    scripts/check-upstream --apply    copies the changes in
+    git diff                          reviews them before you commit
+  Files added or removed upstream need a line in upstream.list, and
+  UPSTREAM.md records why each file was copied or left out.
+  ----------------------------------------------------------------------
+
+MSG
+fi
+if [ $status -ne 1 ]; then
+	echo "pre-push: the upstream check did not complete; pushing anyway." >&2
+fi
+exit 0

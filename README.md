@@ -7,7 +7,10 @@ The configuration files are laid out as a filesystem tree that mirrors their fin
 Layout:
 
 - `usr/lib/sysctl.d/` - VM defaults, network (CUBIC + fq_codel, MTU probing, a longer receive backlog), split-lock mitigation off, soft and hard lockup detectors off, Magic SysRq keys off
-- `usr/lib/udev/rules.d/` - I/O scheduler selection (BFQ/kyber), slow-USB writeback limiting, and I2C/SMBus access for administrators (wheel) for OpenRGB
+- `usr/lib/udev/rules.d/` - I/O scheduler selection (BFQ/kyber), slow-USB writeback limiting, and I2C/SMBus access for administrators (wheel) for OpenRGB; and rules copied unchanged from other projects for hardware support (see `UPSTREAM.md`): game controllers and VR headsets, Framework Laptop 16 modules, Wooting keyboards, the Apple SuperDrive, HDA power saving off on AC power, NVIDIA runtime power management, `/dev/cpu_dma_latency` for the audio group, and the wireless regulatory domain set from the timezone
+- `usr/lib/udev/audio-pm-ctl`, `usr/sbin/iw-setregdomain`, `usr/share/man/man1/` - the programs of those copied rules: CachyOS's HDA power-saving switch, and iw-setregdomain with its man page. iw-setregdomain needs the signed wireless regulatory database, which the spec requires (`wireless-regdb`)
+- `usr/share/licenses/tc-benchtop-settings/` - the licenses of the copied files (MIT, Apache-2.0, GPL-3.0-only, ISC)
+- `usr/bin/brew`, `usr/etc/profile.d/tcbl-homebrew.sh` - Homebrew for each user, in their own home. The first time a user runs `brew`, it installs Homebrew with Homebrew's own installer into `~/.linuxbrew` (or `~/.brew`, when the home path is too long for Homebrew's prebuilt packages), without sudo, and hands the command over to it; the profile.d script puts that Homebrew on the PATH of the user's login sessions after that
 - `usr/lib/tmpfiles.d/` - Transparent Huge Pages (with the THP shrinker) and Multi-Gen LRU policies, written at boot only (`w!`); core dumps deleted after 3 days instead of systemd's 2 weeks
 - `usr/lib/systemd/system.conf.d/` - shorter default shutdown timeout (15 seconds per service); service status messages on the console only when a step fails or boot or shutdown takes more than 25 seconds
 - `usr/lib/systemd/user.conf.d/`, `usr/lib/systemd/system/user@.service.d/` - the same 15-second limit for the user session and its applications
@@ -28,11 +31,13 @@ Layout:
 - `usr/lib/rpm/gnupg/keys/` - that repository's signing key (the home:technicomp OBS key), imported by the image build
 - `usr/lib/rpm/macros.d/` - files that rpm does not install (`%_netsharedpath`): the GNOME launchers of the terminal programs htop, nvtop and atop, and of amdgpu_top's terminal interface. Packaged separately as `tc-benchtop-settings-rpm`, which the image installs before all other packages
 
-Only the build descriptions (`*.spec`, `README.md`, `.obs/`) live at the repository root. Per-file provenance is in the TC Benchtop design notes under `Performance/`.
+Only the build descriptions (`*.spec`, `README.md`, `.obs/`) and the record of the copied files (`UPSTREAM.md`, `upstream.list`, `scripts/check-upstream`, and the pre-push hook in `.githooks/` that runs the check before every push) live at the repository root. Per-file provenance is in the TC Benchtop design notes under `Performance/`.
 
 ## Precedence
 
 All drop-ins use a `90-tcbl-` filename prefix so they sort lexicographically after openSUSE's own vendor defaults (which live at lower numbers such as `50-` in the same `/usr/lib` directories) and therefore win. Drop-ins are applied in filename order across `/usr/lib`, `/run` and `/etc`, and the last file wins; the `90` band still leaves `9x` and `/etc` free for a local administrator to override.
+
+The files copied from other projects keep their upstream names and numbers (`UPSTREAM.md`). They add hardware support and set nothing that a `90-tcbl-` file sets.
 
 One exception: systemd presets use the first line that matches a unit, so `85-tcbl.preset` sorts before openSUSE's `90-`, `95-` and `99-` preset files.
 

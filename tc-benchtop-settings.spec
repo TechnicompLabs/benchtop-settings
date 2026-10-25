@@ -12,7 +12,10 @@ Name:           tc-benchtop-settings
 Version:        0.1.0
 Release:        0
 Summary:        Technicomp Benchtop Linux system configuration defaults
-License:        MIT
+# MIT, with the files copied from other projects under their own licenses
+# (upstream.list): MIT (game-devices-udev), Apache-2.0 (Universal Blue),
+# GPL-3.0-only (CachyOS-Settings) and ISC (iw-setregdomain)
+License:        MIT AND Apache-2.0 AND GPL-3.0-only AND ISC
 URL:            https://github.com/TechnicompLabs/benchtop-settings
 BuildArch:      noarch
 Requires:       systemd
@@ -20,6 +23,25 @@ Requires:       systemd
 Requires:       systemd-resolved
 # 90-tcbl-i2c-wheel.rules runs setfacl
 Requires:       acl
+# 90-apple-superdrive.rules runs sg_raw
+Requires:       sg3_utils
+# audio-pm-ctl (20-audio-pm.rules) is a bash script
+Requires:       bash
+# iw-setregdomain sets the wireless regulatory domain with iw, from the
+# timezone (zone.tab, in openSUSE's timezone package), and logs with logger
+# (util-linux-systemd). The kernel applies a country's rules only from the
+# signed regulatory database (wireless-regdb).
+Requires:       iw
+Requires:       timezone
+Requires:       util-linux-systemd
+Requires:       wireless-regdb
+# brew (Homebrew for each user, installed on first use) downloads Homebrew's
+# installer with curl; Homebrew needs git, file and procps (its compilers come
+# with the base pattern)
+Requires:       curl
+Requires:       file
+Requires:       git-core
+Requires:       procps
 # administrators are the members of group wheel: 90-tcbl-i2c-wheel.rules and
 # the permissions drop-in name that group, and the post-install script applies
 # the drop-in
@@ -56,8 +78,16 @@ administrators (OpenRGB), network capture without root for administrators
 systemd-resolved DNS backend selection, the Brave enterprise policy, Noto as
 the default sans-serif and monospace fonts, the TCBL package repository with
 its signing key, the services and reboot handling of automatic transactional
-updates (including x86-64-v3 optimized libraries), graphical-only logins, and
-Flathub in each user's own Flatpak installation.
+updates (including x86-64-v3 optimized libraries), graphical-only logins,
+Flathub in each user's own Flatpak installation, and Homebrew in each user's
+home, installed on first use.
+
+It also carries udev rules copied unchanged from other projects, for hardware
+support: game controllers and VR headsets (game-devices-udev); Framework Laptop
+16 modules, the HORIPAD STEAM controller, Wooting keyboards and the Apple
+SuperDrive (Universal Blue); HDA audio power saving off on AC power, NVIDIA
+runtime power management and cpu_dma_latency for the audio group (CachyOS); and
+the wireless regulatory domain set from the timezone (iw-setregdomain).
 
 %package rpm
 Summary:        Files that rpm does not install on Technicomp Benchtop Linux
@@ -94,6 +124,10 @@ if [ -z "$treeroot" ]; then
 fi
 install -d "%{buildroot}"
 ( cd "$treeroot" && cp -a --no-preserve=ownership usr etc "%{buildroot}/" )
+# the programs are executable however the sources were checked out
+chmod 0755 %{buildroot}%{_prefix}/bin/brew \
+    %{buildroot}%{_prefix}/lib/udev/audio-pm-ctl \
+    %{buildroot}%{_prefix}/sbin/iw-setregdomain
 # Flathub's remote file (its URL and signing key) for tcbl-flathub.service,
 # copied from openSUSE's flatpak-remote-flathub. The image does not install that
 # package, which adds Flathub system-wide.
@@ -156,6 +190,33 @@ fi
 %{_prefix}/lib/udev/rules.d/90-tcbl-iosched.rules
 %{_prefix}/lib/udev/rules.d/90-tcbl-usb-writeback.rules
 %{_prefix}/lib/udev/rules.d/90-tcbl-i2c-wheel.rules
+# udev rules and programs copied unchanged from other projects, for hardware
+# support: upstream.list names the source of each, UPSTREAM.md the choices
+# game-devices-udev: game controllers and VR headsets
+%{_prefix}/lib/udev/rules.d/71-*-gdu.rules
+%{_prefix}/lib/udev/rules.d/71-uinput-dev-early-creation.rules
+# Universal Blue: Framework Laptop 16 modules, HORIPAD STEAM, Wooting keyboards,
+# Apple SuperDrive
+%{_prefix}/lib/udev/rules.d/50-framework16.rules
+%{_prefix}/lib/udev/rules.d/50-steam-horipad-controller.rules
+%{_prefix}/lib/udev/rules.d/70-wooting.rules
+%{_prefix}/lib/udev/rules.d/90-apple-superdrive.rules
+# CachyOS: HDA power saving off on AC power, NVIDIA runtime power management,
+# cpu_dma_latency for the audio group
+%{_prefix}/lib/udev/rules.d/20-audio-pm.rules
+%{_prefix}/lib/udev/audio-pm-ctl
+%{_prefix}/lib/udev/rules.d/71-nvidia.rules
+%{_prefix}/lib/udev/rules.d/99-cpu-dma-latency.rules
+# iw-setregdomain: the wireless regulatory domain from the timezone
+%{_prefix}/sbin/iw-setregdomain
+%{_prefix}/lib/udev/rules.d/85-iwregulatory.rules
+%{_mandir}/man1/iw-setregdomain.1%{?ext_man}
+# the licenses of the copied files
+%dir %{_defaultlicensedir}/%{name}
+%license %{_defaultlicensedir}/%{name}/game-devices-udev.LICENSE
+%license %{_defaultlicensedir}/%{name}/ublue-os-packages.LICENSE
+%license %{_defaultlicensedir}/%{name}/CachyOS-Settings.LICENSE.md
+%license %{_defaultlicensedir}/%{name}/iw-setregdomain.LICENSE
 # tmpfiles
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp.conf
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp-shrinker.conf
@@ -211,6 +272,10 @@ fi
 %dir %{_prefix}/lib/NetworkManager
 %dir %{_prefix}/lib/NetworkManager/conf.d
 %{_prefix}/lib/NetworkManager/conf.d/90-tcbl-dns.conf
+# Homebrew for each user: installed into their home the first time they run
+# brew, and on the PATH of their login sessions after that
+%{_prefix}/bin/brew
+%{_distconfdir}/profile.d/tcbl-homebrew.sh
 # PAM resource limits
 %dir %{_sysconfdir}/security/limits.d
 %config %{_sysconfdir}/security/limits.d/90-tcbl-audio.conf

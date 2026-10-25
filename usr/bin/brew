@@ -1,0 +1,57 @@
+#!/usr/bin/bash
+# Technicomp Benchtop Linux: Homebrew for each user, in their own home.
+#
+# The first time a user runs brew, this installs Homebrew for that user with
+# Homebrew's own installer and hands the command over to it. Login sessions
+# after that find the user's Homebrew directly (profile.d/tcbl-homebrew.sh),
+# ahead of this file.
+#
+# Homebrew's prebuilt packages (bottles) work only in a prefix no longer than
+# its default, /home/linuxbrew/.linuxbrew (26 bytes): ~/.linuxbrew fits user
+# names of up to 9 characters, ~/.brew up to 14.
+set -euo pipefail
+
+if [[ $EUID -eq 0 ]]; then
+	echo "brew: Homebrew is installed for each user and does not run as root." >&2
+	exit 1
+fi
+
+# an existing installation: the user's own, or one at Homebrew's default prefix
+for prefix in "$HOME/.linuxbrew" "$HOME/.brew" /home/linuxbrew/.linuxbrew; do
+	if [[ -x $prefix/bin/brew ]]; then
+		exec "$prefix/bin/brew" "$@"
+	fi
+done
+
+default=/home/linuxbrew/.linuxbrew
+home=$(realpath -e -- "$HOME")
+prefix=
+for candidate in "$home/.linuxbrew" "$home/.brew"; do
+	if (( ${#candidate} <= ${#default} )); then
+		prefix=$candidate
+		break
+	fi
+done
+if [[ -z $prefix ]]; then
+	echo "brew: the path of $home is too long for a Homebrew with prebuilt" >&2
+	echo "packages in it (see https://docs.brew.sh/Installation)." >&2
+	exit 1
+fi
+
+echo "Installing Homebrew for ${USER:-$(id -un)} in $prefix. This happens once." >&2
+installer=$(mktemp)
+trap 'rm -f "$installer"' EXIT
+curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "$installer"
+HOMEBREW_NO_SUDO=1 NONINTERACTIVE=1 /usr/bin/bash "$installer" --path="$prefix"
+rm -f "$installer"
+trap - EXIT
+cat >&2 <<MSG
+
+Homebrew is installed in $prefix. Benchtop adds it to your PATH in every login
+session, so there is no need to edit ~/.bashrc as the installer suggests. The
+commands you install with brew are on your PATH from your next login; to use
+them in this terminal now, run:
+    eval "\$($prefix/bin/brew shellenv)"
+
+MSG
+exec "$prefix/bin/brew" "$@"

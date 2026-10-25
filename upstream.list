@@ -1,0 +1,92 @@
+# Files that tc-benchtop-settings copies unchanged from other projects, and the
+# files of those projects that were reviewed and not copied. UPSTREAM.md gives
+# the reasons. scripts/check-upstream compares this list with each project's
+# current version; scripts/check-upstream --apply copies the changes in.
+#
+#   source NAME URL BRANCH COMMIT LICENSE   the project, and the commit last compared
+#   file   NAME UPSTREAM-PATH LOCAL-PATH    a copied file; the two must be identical
+#   seen   NAME UPSTREAM-PATH BLOB          reviewed and not copied, at that version
+#   watch  NAME UPSTREAM-DIRECTORY          report files added there upstream
+
+# game-devices-udev: controllers and VR headsets. Installed as 71-<file>, the
+# name its meson build gives them (udev_priority 71). pop-os/game-devices-udev
+# packages the same rules from this repository.
+source gdu https://codeberg.org/fabiscafe/game-devices-udev.git main f0c821eb3f1c3e87f3a6b2d9a5400905f32f84c8 MIT
+file gdu src/8bitdo-gdu.rules usr/lib/udev/rules.d/71-8bitdo-gdu.rules
+file gdu src/alpha_imaging_technology_co-gdu.rules usr/lib/udev/rules.d/71-alpha_imaging_technology_co-gdu.rules
+file gdu src/astro_gaming-gdu.rules usr/lib/udev/rules.d/71-astro_gaming-gdu.rules
+file gdu src/betop-gdu.rules usr/lib/udev/rules.d/71-betop-gdu.rules
+file gdu src/bigscreen-gdu.rules usr/lib/udev/rules.d/71-bigscreen-gdu.rules
+file gdu src/cypress_semiconductor_corp-gdu.rules usr/lib/udev/rules.d/71-cypress_semiconductor_corp-gdu.rules
+file gdu src/google-gdu.rules usr/lib/udev/rules.d/71-google-gdu.rules
+file gdu src/hori-gdu.rules usr/lib/udev/rules.d/71-hori-gdu.rules
+file gdu src/htc-gdu.rules usr/lib/udev/rules.d/71-htc-gdu.rules
+file gdu src/logitech-gdu.rules usr/lib/udev/rules.d/71-logitech-gdu.rules
+file gdu src/mad_catz-gdu.rules usr/lib/udev/rules.d/71-mad_catz-gdu.rules
+file gdu src/microsoft-gdu.rules usr/lib/udev/rules.d/71-microsoft-gdu.rules
+file gdu src/nacon-gdu.rules usr/lib/udev/rules.d/71-nacon-gdu.rules
+file gdu src/nintendo-gdu.rules usr/lib/udev/rules.d/71-nintendo-gdu.rules
+file gdu src/nvidia-gdu.rules usr/lib/udev/rules.d/71-nvidia-gdu.rules
+file gdu src/pdp-gdu.rules usr/lib/udev/rules.d/71-pdp-gdu.rules
+file gdu src/personal_communication_systems_inc-gdu.rules usr/lib/udev/rules.d/71-personal_communication_systems_inc-gdu.rules
+file gdu src/pid_codes-gdu.rules usr/lib/udev/rules.d/71-pid_codes-gdu.rules
+file gdu src/powera-gdu.rules usr/lib/udev/rules.d/71-powera-gdu.rules
+file gdu src/raspberry_pi_ltd-gdu.rules usr/lib/udev/rules.d/71-raspberry_pi_ltd-gdu.rules
+file gdu src/razer-gdu.rules usr/lib/udev/rules.d/71-razer-gdu.rules
+file gdu src/sony-gdu.rules usr/lib/udev/rules.d/71-sony-gdu.rules
+file gdu src/thrustmaster-gdu.rules usr/lib/udev/rules.d/71-thrustmaster-gdu.rules
+file gdu src/uinput-dev-early-creation.rules usr/lib/udev/rules.d/71-uinput-dev-early-creation.rules
+file gdu src/valve-gdu.rules usr/lib/udev/rules.d/71-valve-gdu.rules
+file gdu src/vkb_sim-gdu.rules usr/lib/udev/rules.d/71-vkb_sim-gdu.rules
+file gdu src/zeroplus_technology_corporation-gdu.rules usr/lib/udev/rules.d/71-zeroplus_technology_corporation-gdu.rules
+file gdu LICENSE usr/share/licenses/tc-benchtop-settings/game-devices-udev.LICENSE
+seen gdu meson_options.txt 77c98d4ab133e3c66e4e88acbb05fc82481c2635
+watch gdu src
+
+# Universal Blue: ublue-os-udev-rules
+source ublue https://github.com/ublue-os/packages.git main b63e18a459e607841335447b3caddb120c5c20d3 Apache-2.0
+file ublue packages/ublue-os-udev-rules/src/udev-rules.d/50-framework16.rules usr/lib/udev/rules.d/50-framework16.rules
+file ublue packages/ublue-os-udev-rules/src/udev-rules.d/50-steam-horipad-controller.rules usr/lib/udev/rules.d/50-steam-horipad-controller.rules
+file ublue packages/ublue-os-udev-rules/src/udev-rules.d/70-wooting.rules usr/lib/udev/rules.d/70-wooting.rules
+file ublue packages/ublue-os-udev-rules/src/udev-rules.d/90-apple-superdrive.rules usr/lib/udev/rules.d/90-apple-superdrive.rules
+file ublue LICENSE usr/share/licenses/tc-benchtop-settings/ublue-os-packages.LICENSE
+seen ublue packages/ublue-os-udev-rules/src/udev-rules.d/10-switch.rules dc01e02644ab7871087e116b8d2f4214e67ca7a4
+seen ublue packages/ublue-os-udev-rules/src/udev-rules.d/50-usb-realtek-net.rules 9589b19d1719dbe3f98cce14dbfc509b84504d5c
+seen ublue packages/ublue-os-udev-rules/src/udev-rules.d/70-titan-key.rules 8d6ebf23117f70f2d5636b7f83f8096f826cbfa3
+seen ublue packages/ublue-os-udev-rules/src/udev-rules.d/70-u2f.rules 1f90ddff5d1cd42253c2df4e823f3c58b3e1abb2
+seen ublue packages/ublue-os-udev-rules/src/udev-rules.d/92-viia.rules 75ab3427fb222f09a8a83f08bcbaf60987bdcdec
+seen ublue packages/ublue-os-udev-rules/src/udev-rules.d/99-thinkpad-thresholds-udev.rules b5eb3eea5c18a5cbf8981f346745f667c89049b7
+seen ublue packages/ublue-os-udev-rules/src/udev-rules.d/50-zsa.rules 8360443284527cf63e2417be49298f3ee70e0629
+seen ublue packages/ublue-os-udev-rules/src/udev-rules.d/60-arduino-mbed.rules a7ba8698b8d57177f513b247302c3da1398a2c46
+seen ublue packages/ublue-os-udev-rules/src/udev-rules.d/88-neutron_hifi_dac.rules aa6212092b363d87a40243ebe8ffc7d81cb3136d
+watch ublue packages/ublue-os-udev-rules/src/udev-rules.d
+
+# CachyOS-Settings
+source cachyos https://github.com/CachyOS/CachyOS-Settings.git master f79b237defab24c45c1d49ad570abd9d3dc03609 GPL-3.0-only
+file cachyos usr/lib/udev/rules.d/20-audio-pm.rules usr/lib/udev/rules.d/20-audio-pm.rules
+file cachyos usr/lib/udev/rules.d/71-nvidia.rules usr/lib/udev/rules.d/71-nvidia.rules
+file cachyos usr/lib/udev/rules.d/99-cpu-dma-latency.rules usr/lib/udev/rules.d/99-cpu-dma-latency.rules
+file cachyos usr/lib/udev/audio-pm-ctl usr/lib/udev/audio-pm-ctl
+file cachyos LICENSE.md usr/share/licenses/tc-benchtop-settings/CachyOS-Settings.LICENSE.md
+seen cachyos usr/lib/udev/rules.d/30-zram.rules 5d810c990ada172bef337c507bac826f10be4405
+seen cachyos usr/lib/udev/rules.d/40-hpet-permissions.rules 7af3780f9d9b37ed99039f1a3a594273d8c91501
+seen cachyos usr/lib/udev/rules.d/50-sata.rules f88d8a33c99447addf0491d3ff5a222ce23eb314
+seen cachyos usr/lib/udev/rules.d/60-ioschedulers.rules dc6374c748f250c65a742050b344526d181cfc84
+seen cachyos usr/lib/udev/rules.d/69-hdparm.rules 3fcf480faaee26dea74345c5ddcde5def3de39a5
+seen cachyos usr/lib/udev/rules.d/85-iw-regulatory.rules 7ed00ad115d48c68f2dcc62275723b1b5b628408
+seen cachyos usr/lib/iw-set-regdomain 65370fe2a26d4c1b70698a39b9c8162f515afafd
+seen cachyos usr/lib/systemd/system/cachyos-iw-set-regdomain.service a165449c274c5a6929fb64e657fc03cf451dae49
+seen cachyos usr/lib/systemd/system/cachyos-iw-set-regdomain.path ed1ee63e3ed0b0c8fb317f903813f435bbe180d2
+seen cachyos usr/lib/tmpfiles.d/thp.conf 284a7266719cfb6abcc72b7efc06957816276a11
+seen cachyos usr/lib/tmpfiles.d/thp-shrinker.conf bc216ea4958d5118b3deec38152c8bdfcb78344f
+seen cachyos usr/lib/tmpfiles.d/coredump.conf fecd0ef358e61a24d860ba90bd177f3bb57b4a60
+seen cachyos usr/lib/NetworkManager/conf.d/dns.conf c81a6439cbe4f85ae2a84d8fcc72c04a74c1a09b
+watch cachyos usr/lib/udev/rules.d
+
+# iw-setregdomain: the wireless regulatory domain from the timezone
+source iwreg https://gitlab.com/VelocityLimitless/Projects/iw-setregdomain.git main 2a57380b2787761c352fcf4acb1d56175ea387b0 ISC
+file iwreg iw-setregdomain usr/sbin/iw-setregdomain
+file iwreg 85-iwregulatory.rules usr/lib/udev/rules.d/85-iwregulatory.rules
+file iwreg iw-setregdomain.1 usr/share/man/man1/iw-setregdomain.1
+file iwreg LICENSE usr/share/licenses/tc-benchtop-settings/iw-setregdomain.LICENSE
+seen iwreg iw-setregdomain.spec bf61a80f2b350446a1360aea8398319a0ae13472

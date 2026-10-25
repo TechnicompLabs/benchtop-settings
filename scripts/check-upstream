@@ -1,0 +1,120 @@
+#!/bin/sh
+# Compare the files that tc-benchtop-settings copies from other projects
+# (upstream.list) with the current versions of those projects.
+#
+#   scripts/check-upstream          report what changed upstream
+#   scripts/check-upstream --apply  also copy the changed files in, and record
+#                                   the new commits and versions in upstream.list
+#
+# --apply never removes a file and never adds one: files removed or added
+# upstream, and changes to files that were reviewed and not copied, are only
+# reported. Review the result with git diff before committing it.
+#
+# Exit status: 0 nothing changed upstream, 1 something did, 2 an error.
+# Needs git; reads public repositories only.
+set -eu
+set -f   # manifest lines are split into words; never expand them as globs
+
+apply=0
+case "${1:-}" in
+	--apply) apply=1 ;;
+	'') ;;
+	*) echo "usage: $0 [--apply]" >&2; exit 2 ;;
+esac
+
+cd "$(dirname "$0")/.."
+list=upstream.list
+[ -f "$list" ] || { echo "$list not found" >&2; exit 2; }
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT INT TERM
+changed=0
+failed=0
+
+# upstream paths that have a file or seen line, for the watch lines
+awk '$1 == "file" || $1 == "seen" { print $2 " " $3 }' "$list" > "$tmp/known"
+
+clone() { # NAME: shallow clone of the source, once
+	[ -d "$tmp/src.$1" ] && return 0
+	git clone -q --depth 1 --branch "$(cat "$tmp/branch.$1")" \
+		"$(cat "$tmp/url.$1")" "$tmp/src.$1" </dev/null
+}
+
+while IFS= read -r line; do
+	set -- $line
+	kind=${1:-}
+	case $kind in
+	source)
+		name=$2 url=$3 branch=$4 pinned=$5
+		echo "$url" > "$tmp/url.$name"
+		echo "$branch" > "$tmp/branch.$name"
+		echo "$pinned" > "$tmp/pinned.$name"
+		now=$(git ls-remote "$url" "refs/heads/$branch" </dev/null 2>/dev/null | cut -f1)
+		if [ -z "$now" ]; then
+			echo "$name: could not reach $url ($branch)"
+			echo error > "$tmp/state.$name"; failed=1
+		elif [ "$now" = "$pinned" ]; then
+			echo "$name: unchanged since $(echo "$pinned" | cut -c1-12)"
+			echo same > "$tmp/state.$name"
+		else
+			echo "$name: $(echo "$pinned" | cut -c1-12) -> $(echo "$now" | cut -c1-12)"
+			echo moved > "$tmp/state.$name"
+			[ $apply = 1 ] && line="source $name $url $branch $now ${6:-}"
+		fi
+		;;
+	file|seen|watch)
+		name=$2
+		if [ "$(cat "$tmp/state.$name" 2>/dev/null)" = moved ]; then
+			clone "$name"
+			src=$tmp/src.$name
+			case $kind in
+			file)
+				if [ ! -f "$src/$3" ]; then
+					echo "  removed upstream: $3 (copied as $4)"; changed=1
+					: > "$tmp/unresolved.$name"
+				elif ! cmp -s "$src/$3" "$4"; then
+					echo "  changed: $3 -> $4"; changed=1
+					[ $apply = 1 ] && cat "$src/$3" > "$4"
+				fi
+				;;
+			seen)
+				blob=$(git -C "$src" rev-parse -q --verify "HEAD:$3" 2>/dev/null || true)
+				if [ -z "$blob" ]; then
+					echo "  removed upstream (reviewed, not copied): $3"; changed=1
+					: > "$tmp/unresolved.$name"
+				elif [ "$blob" != "$4" ]; then
+					echo "  changed upstream (reviewed, not copied): $3 - review it again"; changed=1
+					[ $apply = 1 ] && line="seen $name $3 $blob"
+				fi
+				;;
+			watch)
+				git -C "$src" ls-tree --name-only HEAD "$3/" | while IFS= read -r path; do
+					grep -qxF "$name $path" "$tmp/known" ||
+						echo "  new upstream (not reviewed): $path"
+				done > "$tmp/new"
+				[ -s "$tmp/new" ] && { cat "$tmp/new"; changed=1; : > "$tmp/unresolved.$name"; }
+				;;
+			esac
+		fi
+		;;
+	esac
+	printf '%s\n' "$line" >> "$tmp/list"
+done < "$list"
+
+if [ $apply = 1 ]; then
+	# A source with files added or removed upstream keeps its old commit, so
+	# that the next run reports them again until upstream.list handles them.
+	for n in $(ls "$tmp" | sed -n 's/^unresolved\.//p'); do
+		awk -v n="$n" -v c="$(cat "$tmp/pinned.$n")" \
+			'$1 == "source" && $2 == n { $5 = c } { print }' "$tmp/list" > "$tmp/list2"
+		cat "$tmp/list2" > "$tmp/list"
+		echo "$n: commit left at $(cut -c1-12 "$tmp/pinned.$n") until the new or removed files are handled in $list"
+	done
+	if ! cmp -s "$tmp/list" "$list"; then
+		cat "$tmp/list" > "$list"
+		echo "Applied: changed files copied in, $list updated. Review with git diff."
+	fi
+fi
+[ $failed = 1 ] && exit 2
+[ $changed = 1 ] && exit 1
+exit 0
