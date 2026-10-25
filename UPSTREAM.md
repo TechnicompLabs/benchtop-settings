@@ -15,7 +15,7 @@ The script needs git and reads public repositories only; it exits with status 1 
 
 [fabiscafe/game-devices-udev](https://codeberg.org/fabiscafe/game-devices-udev): all 27 rule files, for game controllers, arcade sticks, flight and racing hardware, and VR headsets. They are installed as `71-<file>`, the names its meson build gives them, and grant access to the user at the seat (`uaccess`) with mode 0660. pop-os/game-devices-udev packages the same rules; its additional `91-joystick-blacklist.rules` is not needed, because openSUSE's `51-these-are-not-joysticks-rm.rules` does the same. steam-devices (in the base pattern) also covers Valve and some other controllers; both grant the same access, so the overlap is harmless.
 
-### Universal Blue (Apache-2.0)
+### [Universal Blue](https://universal-blue.org) (Apache-2.0)
 
 From [ublue-os-udev-rules](https://github.com/ublue-os/packages/tree/main/packages/ublue-os-udev-rules):
 
