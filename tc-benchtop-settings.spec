@@ -94,9 +94,9 @@ Summary:        Files that rpm does not install on Technicomp Benchtop Linux
 
 %description rpm
 An rpm macro (%%_netsharedpath) naming files that rpm does not install: the
-desktop launchers of the terminal programs htop, nvtop and atop and of
-amdgpu_top's terminal interface, which would otherwise appear in the GNOME app
-grid. The image build installs this package before all others, so that the
+desktop launchers of the terminal programs htop, nvtop and atop, both of
+amdgpu_top's launchers, and Racket's DrRacket and Slideshow, which would
+otherwise appear in the GNOME app grid. The image build installs this package before all others, so that the
 macro applies to every package in the image.
 
 %prep

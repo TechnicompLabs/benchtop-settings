@@ -29,7 +29,7 @@ Layout:
 - `etc/brave/policies/managed/` - Brave enterprise policy
 - `etc/zypp/repos.d/` - the TCBL package repository (OBS home:technicomp:benchtop), at priority 90, above the openSUSE repositories
 - `usr/lib/rpm/gnupg/keys/` - that repository's signing key (the home:technicomp OBS key), imported by the image build
-- `usr/lib/rpm/macros.d/` - files that rpm does not install (`%_netsharedpath`): the GNOME launchers of the terminal programs htop, nvtop and atop, and of amdgpu_top's terminal interface. Packaged separately as `tc-benchtop-settings-rpm`, which the image installs before all other packages
+- `usr/lib/rpm/macros.d/` - files that rpm does not install (`%_netsharedpath`): the GNOME launchers of the terminal programs htop, nvtop and atop, both of amdgpu_top's launchers, and Racket's DrRacket and Slideshow. Packaged separately as `tc-benchtop-settings-rpm`, which the image installs before all other packages
 
 Only the build descriptions (`*.spec`, `README.md`, `.obs/`) and the record of the copied files (`UPSTREAM.md`, `upstream.list`, `scripts/check-upstream`, and the pre-push hook in `.githooks/` that runs the check before every push) live at the repository root. Per-file provenance is in the TC Benchtop design notes under `Performance/`.
 

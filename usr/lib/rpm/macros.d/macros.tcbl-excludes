@@ -1,9 +1,15 @@
 # Technicomp Benchtop Linux: files that rpm does not install.
 #
 # htop, nvtop and atop are terminal programs, and amdgpu_top has a terminal
-# interface besides its graphical one. Their terminal launchers would put them
-# in the GNOME app grid: htop's, nvtop's and amdgpu_top's come from upstream,
-# atop's from openSUSE's package.
+# interface besides its graphical one. Their launchers would put them in the
+# GNOME app grid: htop's, nvtop's and amdgpu_top's come from upstream, atop's
+# from openSUSE's package. Both of amdgpu_top's launchers are left out; the
+# program itself stays installed, and amdgpu_top --gui still starts its
+# graphical interface.
+#
+# The racket package (languages set) brings launchers for DrRacket and
+# Slideshow, Racket's graphical IDE and presentation tool. Racket stays
+# installed, and both still start from a terminal (drracket, slideshow).
 #
 # rpm documents this macro as "a colon separated list of paths where files
 # should *not* be installed". rpm skips these paths on every install and update,
@@ -14,4 +20,4 @@
 #
 # A launcher that upstream renames is no longer matched and reappears; add its
 # new path here. "rpm --eval %_netsharedpath" shows the list in effect.
-%_netsharedpath /usr/share/applications/htop.desktop:/usr/share/applications/nvtop.desktop:/usr/share/applications/atop.desktop:/usr/share/applications/amdgpu_top-tui.desktop
+%_netsharedpath /usr/share/applications/htop.desktop:/usr/share/applications/nvtop.desktop:/usr/share/applications/atop.desktop:/usr/share/applications/amdgpu_top-tui.desktop:/usr/share/applications/amdgpu_top.desktop:/usr/share/applications/drracket.desktop:/usr/share/applications/slideshow.desktop
