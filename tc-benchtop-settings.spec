@@ -83,7 +83,8 @@ System-level defaults for Technicomp Benchtop Linux (an immutable
 Tumbleweed-based openSUSE derivative, built against openSUSE:Factory):
 VM/network/scheduler sysctls, Magic SysRq keys and lockup detectors off, I/O
 scheduler and USB writeback udev rules, THP (with the THP shrinker) and MGLRU
-tmpfiles policies, core dumps deleted after 3 days, shutdown timeouts (system
+tmpfiles policies, core dumps deleted after 3 days, /tmp limited to 20% of
+RAM and cleaned after 3 days, /var/tmp cleaned after 30 days, shutdown timeouts (system
 and user session), boot status messages only for failed or slow steps, watchdog
 module blacklist, SATA staggered spin-up ignored, amdgpu for Southern Islands
 and Sea Islands GPUs, crash logs kept across reboots (UEFI pstore), ntsync
@@ -272,6 +273,10 @@ fi
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp-shrinker.conf
 %{_prefix}/lib/tmpfiles.d/90-tcbl-mglru.conf
 %{_prefix}/lib/tmpfiles.d/90-tcbl-coredump.conf
+%{_prefix}/lib/tmpfiles.d/90-tcbl-tmp.conf
+# /tmp: at most 20% of RAM
+%dir %{_unitdir}/tmp.mount.d
+%{_unitdir}/tmp.mount.d/90-tcbl-size.conf
 # systemd
 %dir %{_prefix}/lib/systemd/system.conf.d
 %{_prefix}/lib/systemd/system.conf.d/90-tcbl-shutdown.conf
