@@ -27,6 +27,7 @@ Layout:
 - `usr/lib/NetworkManager/conf.d/` - systemd-resolved as the DNS backend
 - `etc/security/limits.d/` - realtime-audio scheduling and memlock limits
 - `etc/brave/policies/managed/` - Brave enterprise policy
+- `usr/kernel/cmdline.d/` - the kernel command line options that cannot be set anywhere else (boot messages and splash, SELinux, the PCR 15 check, threaded interrupts, RCU callbacks off every CPU, the Intel IOMMU). sdbootutil adds the file to every boot entry it writes; a file of the same name in `/etc/kernel/cmdline.d` replaces it. sdbootutil's vendor directory is undocumented, so the spec's `%check` fails the build if sdbootutil stops reading it
 - `usr/etc/zypp/zypp.conf.d/` - zypper installs each transaction in a single rpm transaction (`techpreview.ZYPP_SINGLE_RPMTRANS`), as on Aeon
 - `etc/zypp/repos.d/` - the TCBL package repository (OBS home:technicomp:benchtop), at priority 90, above the openSUSE repositories
 - `usr/lib/rpm/gnupg/keys/` - that repository's signing key (the home:technicomp OBS key), which the image build imports with every other key in that directory

@@ -65,6 +65,9 @@ BuildRequires:  flatpak-remote-flathub
 # SELinux booleans, set with selinux-policy's own macros (%%selinux_set_booleans)
 %define selinuxbooleans selinuxuser_execmod=1 selinuxuser_execheap=1 selinuxuser_execstack=1
 BuildRequires:  selinux-policy
+# %%check: sdbootutil still reads the kernel command line drop-ins from
+# /usr/kernel/cmdline.d (OBS rebuilds this package when sdbootutil changes)
+BuildRequires:  sdbootutil
 Requires(post): policycoreutils-python-utils
 Requires(post): selinux-policy-targeted
 Requires(postun): policycoreutils-python-utils
@@ -87,7 +90,7 @@ its signing key, the services and reboot handling of automatic transactional
 updates (including x86-64-v3 optimized libraries), NetworkManager,
 systemd-resolved and zram swap enabled, zypper's single rpm transaction, the
 SELinux booleans that let users' programs use executable memory (as on Aeon),
-graphical-only logins,
+the kernel command line options (an sdbootutil drop-in), graphical-only logins,
 Flathub in each user's own Flatpak installation, and Homebrew in each user's
 home, installed on first use.
 
@@ -147,6 +150,17 @@ install -D -m 0644 %{_sysconfdir}/flatpak/remotes.d/flathub.flatpakrepo \
 install -d %{buildroot}%{_sysconfdir}/fonts/conf.d
 ln -s ../../..%{_datadir}/fontconfig/conf.avail/59-tcbl-family-prefer.conf \
     %{buildroot}%{_sysconfdir}/fonts/conf.d/59-tcbl-family-prefer.conf
+
+%check
+# sdbootutil adds the files in /usr/kernel/cmdline.d to every boot entry's
+# command line. That path is not documented and looks unusual beside
+# /usr/lib/kernel/cmdline, so stop the build if sdbootutil no longer reads it:
+# the options, security=selinux among them, would otherwise silently disappear
+# from new boot entries.
+grep -q '/usr/kernel/cmdline\.d/' %{_bindir}/sdbootutil || {
+    echo "ERROR: sdbootutil no longer reads /usr/kernel/cmdline.d; move 90-tcbl.conf" >&2
+    exit 1
+}
 
 %pre
 %systemd_preset_pre
@@ -256,6 +270,10 @@ fi
 %dir %{_prefix}/lib/modules-load.d
 %{_prefix}/lib/modules-load.d/90-tcbl-i2c-dev.conf
 %{_prefix}/lib/modules-load.d/90-tcbl-ntsync.conf
+# kernel command line options, added by sdbootutil to every boot entry
+%dir %{_prefix}/kernel
+%dir %{_prefix}/kernel/cmdline.d
+%{_prefix}/kernel/cmdline.d/90-tcbl.conf
 # systemd presets (first match wins, so 85- sorts before openSUSE's files)
 %{_prefix}/lib/systemd/system-preset/85-tcbl.preset
 %{_prefix}/lib/systemd/user-preset/85-tcbl.preset
