@@ -16,7 +16,7 @@ Layout:
 - `usr/lib/systemd/user.conf.d/`, `usr/lib/systemd/system/user@.service.d/` - the same 15-second limit for the user session and its applications
 - `usr/lib/modprobe.d/` - hardware watchdog blacklist (Intel TCO, AMD SP5100 TCO, ACPI WDAT); staggered SATA spin-up ignored (libahci); amdgpu instead of radeon for Southern Islands and Sea Islands GPUs (the kernel's default since 6.19, needed on kernel-longterm 6.18); the UEFI backend of pstore switched on, so that the kernel log of a crash survives the reboot (systemd-pstore moves it to `/var/lib/systemd/pstore` at the next boot)
 - `usr/lib/modules-load.d/` - loads i2c-dev for OpenRGB's SMBus lighting control (RAM, some motherboards), and ntsync, whose `/dev/ntsync` Wine and Proton use for Windows synchronization primitives
-- `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, x86-64-v3 libraries, update notifier), as on Aeon; rasdaemon, which records hardware errors; the per-user Flathub service; no text login on the first console
+- `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, x86-64-v3 libraries, update notifier), as on Aeon; rasdaemon, which records hardware errors; NetworkManager, systemd-resolved and zram swap, which openSUSE's presets leave off; the per-user Flathub service; no text login on the first console
 - `usr/lib/systemd/system/` - `tcbl-x86-64-v3.service`: installs the x86-64-v3 optimized libraries after automatic updates, on CPUs that support them (forked from openSUSE's x86_64_v3-branding-Aeon)
 - `usr/lib/systemd/user/` - `tcbl-flathub.service`: adds Flathub to each user's own Flatpak installation at their first login, once, so that apps install per user without an administrator password. It uses Flathub's remote file, which the spec copies at build time from openSUSE's `flatpak-remote-flathub` to `/usr/share/tc-benchtop-settings/`; the image leaves that package out, because it adds Flathub system-wide
 - `usr/share/fontconfig/conf.avail/` - Noto as the default sans-serif and monospace fonts, as upstream fontconfig has set them since 2.14, the configuration that Flatpak runtimes ship (openSUSE's fonts-config would otherwise choose Roboto and Source Code Pro). Flatpak apps do not read it: Flatpak exposes the host's fonts but not its fontconfig configuration. The spec links it into `/etc/fonts/conf.d`
@@ -27,9 +27,11 @@ Layout:
 - `usr/lib/NetworkManager/conf.d/` - systemd-resolved as the DNS backend
 - `etc/security/limits.d/` - realtime-audio scheduling and memlock limits
 - `etc/brave/policies/managed/` - Brave enterprise policy
+- `usr/etc/zypp/zypp.conf.d/` - zypper installs each transaction in a single rpm transaction (`techpreview.ZYPP_SINGLE_RPMTRANS`), as on Aeon
 - `etc/zypp/repos.d/` - the TCBL package repository (OBS home:technicomp:benchtop), at priority 90, above the openSUSE repositories
-- `usr/lib/rpm/gnupg/keys/` - that repository's signing key (the home:technicomp OBS key), imported by the image build
+- `usr/lib/rpm/gnupg/keys/` - that repository's signing key (the home:technicomp OBS key), which the image build imports with every other key in that directory
 - `usr/lib/rpm/macros.d/` - files that rpm does not install (`%_netsharedpath`): the GNOME launchers of the terminal programs htop, nvtop and atop, both of amdgpu_top's launchers, and Racket's DrRacket and Slideshow. Packaged separately as `tc-benchtop-settings-rpm`, which the image installs before all other packages
+- SELinux booleans, set by the spec's post-install script with selinux-policy's `%selinux_set_booleans` macro: users' programs may use executable memory (`selinuxuser_execmod`, `selinuxuser_execheap`, `selinuxuser_execstack`), as on Aeon. Removing the package restores the previous values
 
 Only the build descriptions (`*.spec`, `README.md`, `.obs/`) and the record of the copied files (`UPSTREAM.md`, `upstream.list`, `scripts/check-upstream`, and the pre-push hook in `.githooks/` that runs the check before every push) live at the repository root. Per-file provenance is in the TC Benchtop design notes under `Performance/`.
 

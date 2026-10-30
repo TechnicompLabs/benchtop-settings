@@ -62,6 +62,12 @@ BuildRequires:  systemd-rpm-macros
 # Flathub's remote file, which the install section copies for
 # tcbl-flathub.service
 BuildRequires:  flatpak-remote-flathub
+# SELinux booleans, set with selinux-policy's own macros (%%selinux_set_booleans)
+%define selinuxbooleans selinuxuser_execmod=1 selinuxuser_execheap=1 selinuxuser_execstack=1
+BuildRequires:  selinux-policy
+Requires(post): policycoreutils-python-utils
+Requires(post): selinux-policy-targeted
+Requires(postun): policycoreutils-python-utils
 
 %description
 System-level defaults for Technicomp Benchtop Linux (an immutable
@@ -78,7 +84,10 @@ administrators (OpenRGB), network capture without root for administrators
 systemd-resolved DNS backend selection, the Brave enterprise policy, Noto as
 the default sans-serif and monospace fonts, the TCBL package repository with
 its signing key, the services and reboot handling of automatic transactional
-updates (including x86-64-v3 optimized libraries), graphical-only logins,
+updates (including x86-64-v3 optimized libraries), NetworkManager,
+systemd-resolved and zram swap enabled, zypper's single rpm transaction, the
+SELinux booleans that let users' programs use executable memory (as on Aeon),
+graphical-only logins,
 Flathub in each user's own Flatpak installation, and Homebrew in each user's
 home, installed on first use.
 
@@ -161,6 +170,10 @@ fi
 if [ -e /usr/bin/dumpcap ]; then
 %set_permissions /usr/bin/dumpcap
 fi
+# users' programs may use executable memory (execmod, execheap, execstack), as
+# on Aeon; the macro records the previous values and does nothing without a
+# targeted policy store
+%selinux_set_booleans -s targeted %{selinuxbooleans}
 
 %posttrans
 %systemd_preset_posttrans
@@ -176,6 +189,10 @@ fi
 # after removal, dumpcap returns to openSUSE's permissions
 if [ $1 -eq 0 ] && [ -e /usr/bin/dumpcap ]; then
 %set_permissions /usr/bin/dumpcap
+fi
+# after removal, the SELinux booleans return to their previous values
+if [ $1 -eq 0 ]; then
+%selinux_unset_booleans -s targeted %{selinuxbooleans}
 fi
 
 %files
@@ -285,11 +302,16 @@ fi
 %dir %{_sysconfdir}/brave/policies
 %dir %{_sysconfdir}/brave/policies/managed
 %config %{_sysconfdir}/brave/policies/managed/tc-benchtop.json
+# zypper: one rpm transaction per installation
+%dir %{_distconfdir}/zypp
+%dir %{_distconfdir}/zypp/zypp.conf.d
+%{_distconfdir}/zypp/zypp.conf.d/90-tcbl-singletrans.conf
 # zypper: the TCBL package repository, above the openSUSE repositories
 %dir %{_sysconfdir}/zypp
 %dir %{_sysconfdir}/zypp/repos.d
 %config(noreplace) %{_sysconfdir}/zypp/repos.d/repo-tcbl.repo
-# signing key of that repository (the image's config.sh imports it)
+# signing key of that repository (the image build imports every key in this
+# directory)
 %dir %{_prefix}/lib/rpm/gnupg
 %dir %{_prefix}/lib/rpm/gnupg/keys
 %{_prefix}/lib/rpm/gnupg/keys/gpg-pubkey-9f72b2da-68976fe8.asc
