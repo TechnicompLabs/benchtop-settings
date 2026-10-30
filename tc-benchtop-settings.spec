@@ -49,6 +49,12 @@ Requires:       group(wheel)
 Requires(post): group(wheel)
 # tcbl-flathub.service adds Flathub with flatpak
 Requires:       flatpak
+# Flathub belongs to each user's own Flatpak installation (tcbl-flathub.service).
+# openSUSE's flatpak-remote-flathub adds it system-wide, where installing apps
+# needs an administrator, and supplements flatpak, so the solver would bring it
+# in wherever supplements are followed. Adding the remote by hand
+# (flatpak remote-add --system) still works.
+Conflicts:      flatpak-remote-flathub
 # 59-tcbl-family-prefer.conf is a fontconfig configuration
 Requires:       fontconfig
 # the rpm macro that keeps the launchers of terminal programs out
@@ -141,8 +147,8 @@ chmod 0755 %{buildroot}%{_prefix}/bin/brew \
     %{buildroot}%{_prefix}/lib/udev/audio-pm-ctl \
     %{buildroot}%{_prefix}/sbin/iw-setregdomain
 # Flathub's remote file (its URL and signing key) for tcbl-flathub.service,
-# copied from openSUSE's flatpak-remote-flathub. The image does not install that
-# package, which adds Flathub system-wide.
+# copied from openSUSE's flatpak-remote-flathub, which this package conflicts
+# with (it adds Flathub system-wide).
 install -D -m 0644 %{_sysconfdir}/flatpak/remotes.d/flathub.flatpakrepo \
     %{buildroot}%{_datadir}/%{name}/flathub.flatpakrepo
 # the kernel command line file, also in /usr/kernel/cmdline.d: sdbootutil read
