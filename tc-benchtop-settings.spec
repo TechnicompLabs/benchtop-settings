@@ -66,7 +66,8 @@ BuildRequires:  flatpak-remote-flathub
 %define selinuxbooleans selinuxuser_execmod=1 selinuxuser_execheap=1 selinuxuser_execstack=1
 BuildRequires:  selinux-policy
 # %%check: sdbootutil still reads the kernel command line drop-ins from
-# /usr/kernel/cmdline.d (OBS rebuilds this package when sdbootutil changes)
+# /usr/kernel/cmdline.d or /usr/lib/kernel/cmdline.d (OBS rebuilds this package
+# when sdbootutil changes)
 BuildRequires:  sdbootutil
 Requires(post): policycoreutils-python-utils
 Requires(post): selinux-policy-targeted
@@ -145,6 +146,14 @@ chmod 0755 %{buildroot}%{_prefix}/bin/brew \
 # package, which adds Flathub system-wide.
 install -D -m 0644 %{_sysconfdir}/flatpak/remotes.d/flathub.flatpakrepo \
     %{buildroot}%{_datadir}/%{name}/flathub.flatpakrepo
+# the kernel command line file, also in /usr/lib/kernel/cmdline.d, beside
+# /usr/lib/kernel/cmdline: sdbootutil reads vendor files from
+# /usr/kernel/cmdline.d today, and would find this link if that becomes
+# /usr/lib/kernel/cmdline.d. If it ever reads both, the options appear twice,
+# which is harmless.
+install -d %{buildroot}%{_prefix}/lib/kernel/cmdline.d
+ln -s ../../../kernel/cmdline.d/90-tcbl.conf \
+    %{buildroot}%{_prefix}/lib/kernel/cmdline.d/90-tcbl.conf
 # fontconfig reads /etc/fonts/conf.d; the link enables the font configuration,
 # as openSUSE's font packages link theirs
 install -d %{buildroot}%{_sysconfdir}/fonts/conf.d
@@ -154,11 +163,11 @@ ln -s ../../..%{_datadir}/fontconfig/conf.avail/59-tcbl-family-prefer.conf \
 %check
 # sdbootutil adds the files in /usr/kernel/cmdline.d to every boot entry's
 # command line. That path is not documented and looks unusual beside
-# /usr/lib/kernel/cmdline, so stop the build if sdbootutil no longer reads it:
-# the options, security=selinux among them, would otherwise silently disappear
-# from new boot entries.
-grep -q '/usr/kernel/cmdline\.d/' %{_bindir}/sdbootutil || {
-    echo "ERROR: sdbootutil no longer reads /usr/kernel/cmdline.d; move 90-tcbl.conf" >&2
+# /usr/lib/kernel/cmdline, so stop the build if sdbootutil reads neither it nor
+# /usr/lib/kernel/cmdline.d: the options, security=selinux among them, would
+# otherwise silently disappear from new boot entries.
+grep -q -e '/usr/kernel/cmdline\.d/' -e '/usr/lib/kernel/cmdline\.d/' %{_bindir}/sdbootutil || {
+    echo "ERROR: sdbootutil reads neither /usr/kernel/cmdline.d nor /usr/lib/kernel/cmdline.d; move 90-tcbl.conf" >&2
     exit 1
 }
 
@@ -274,6 +283,9 @@ fi
 %dir %{_prefix}/kernel
 %dir %{_prefix}/kernel/cmdline.d
 %{_prefix}/kernel/cmdline.d/90-tcbl.conf
+%dir %{_prefix}/lib/kernel
+%dir %{_prefix}/lib/kernel/cmdline.d
+%{_prefix}/lib/kernel/cmdline.d/90-tcbl.conf
 # systemd presets (first match wins, so 85- sorts before openSUSE's files)
 %{_prefix}/lib/systemd/system-preset/85-tcbl.preset
 %{_prefix}/lib/systemd/user-preset/85-tcbl.preset
