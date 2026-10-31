@@ -49,18 +49,6 @@ Requires:       group(wheel)
 Requires(post): group(wheel)
 # tcbl-flathub.service adds Flathub with flatpak
 Requires:       flatpak
-# Flathub belongs to each user's own Flatpak installation (tcbl-flathub.service).
-# openSUSE's flatpak-remote-flathub adds it system-wide, where installing apps
-# needs an administrator, and supplements flatpak, so the solver would bring it
-# in wherever supplements are followed. Adding the remote by hand
-# (flatpak remote-add --system) still works.
-Conflicts:      flatpak-remote-flathub
-# TCBL is administered with Cockpit, not YaST. openSUSE's yast2-samba-server
-# supplements samba (bnc#386473), so on a system with Samba (the admin set) the
-# solver would add it, and with it YaST's core, libraries and other modules,
-# whenever it follows supplements, as automatic updates do. Supplements are
-# optional, so with this conflict the solver leaves them out instead.
-Conflicts:      yast2
 # 59-tcbl-family-prefer.conf is a fontconfig configuration
 Requires:       fontconfig
 # the rpm macro that keeps the launchers of terminal programs out
@@ -104,7 +92,6 @@ updates (including x86-64-v3 optimized libraries), NetworkManager,
 systemd-resolved and zram swap enabled, zypper's single rpm transaction, the
 SELinux booleans that let users' programs use executable memory (as on Aeon),
 the kernel command line options (an sdbootutil drop-in), graphical-only logins,
-no YaST (TCBL is administered with Cockpit),
 Flathub in each user's own Flatpak installation, and Homebrew in each user's
 home, installed on first use.
 
@@ -155,8 +142,8 @@ chmod 0755 %{buildroot}%{_prefix}/bin/brew \
     %{buildroot}%{_prefix}/lib/udev/audio-pm-ctl \
     %{buildroot}%{_prefix}/sbin/iw-setregdomain
 # Flathub's remote file (its URL and signing key) for tcbl-flathub.service,
-# copied from openSUSE's flatpak-remote-flathub, which this package conflicts
-# with (it adds Flathub system-wide).
+# copied from openSUSE's flatpak-remote-flathub, which TCBL's base pattern
+# conflicts with (it adds Flathub system-wide).
 install -D -m 0644 %{_sysconfdir}/flatpak/remotes.d/flathub.flatpakrepo \
     %{buildroot}%{_datadir}/%{name}/flathub.flatpakrepo
 # the kernel command line file, also in /usr/kernel/cmdline.d: sdbootutil read

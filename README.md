@@ -19,7 +19,7 @@ Layout:
 - `usr/lib/modules-load.d/` - loads i2c-dev for OpenRGB's SMBus lighting control (RAM, some motherboards), and ntsync, whose `/dev/ntsync` Wine and Proton use for Windows synchronization primitives
 - `usr/lib/systemd/system-preset/`, `usr/lib/systemd/user-preset/` - services of automatic transactional updates (update timer, health-checker rollback, x86-64-v3 libraries, update notifier), as on Aeon; rasdaemon, which records hardware errors; NetworkManager, systemd-resolved and zram swap, which openSUSE's presets leave off; the per-user Flathub service; no text login on the first console
 - `usr/lib/systemd/system/` - `tcbl-x86-64-v3.service`: installs the x86-64-v3 optimized libraries after automatic updates, on CPUs that support them (forked from openSUSE's x86_64_v3-branding-Aeon)
-- `usr/lib/systemd/user/` - `tcbl-flathub.service`: adds Flathub to each user's own Flatpak installation at their first login, once, so that apps install per user without an administrator password. It uses Flathub's remote file, which the spec copies at build time from openSUSE's `flatpak-remote-flathub` to `/usr/share/tc-benchtop-settings/`; the spec conflicts with that package, which adds Flathub system-wide and supplements flatpak
+- `usr/lib/systemd/user/` - `tcbl-flathub.service`: adds Flathub to each user's own Flatpak installation at their first login, once, so that apps install per user without an administrator password. It uses Flathub's remote file, which the spec copies at build time from openSUSE's `flatpak-remote-flathub` to `/usr/share/tc-benchtop-settings/`; TCBL's base pattern conflicts with that package, which adds Flathub system-wide and supplements flatpak
 - `usr/share/fontconfig/conf.avail/` - Noto as the default sans-serif and monospace fonts, as upstream fontconfig has set them since 2.14, the configuration that Flatpak runtimes ship (openSUSE's fonts-config would otherwise choose Roboto and Source Code Pro). Flatpak apps do not read it: Flatpak exposes the host's fonts but not its fontconfig configuration. The spec links it into `/etc/fonts/conf.d`
 - `usr/share/glib-2.0/schemas/` - GNOME Software installs Flatpak files opened from outside it (such as the `.flatpakref` that flathub.org's Install button downloads) per user
 - `usr/share/permissions/packages.d/` - administrators (wheel) capture network traffic without root: a permissions(5) drop-in that gives Wireshark's `dumpcap` to group wheel instead of the wireshark group, which has no members unless someone is added to it, in the easy and secure profiles (the paranoid profile keeps openSUSE's setting). permctl applies it in this package's post-install script and in Wireshark's
@@ -36,13 +36,6 @@ Layout:
 - SELinux booleans, set by the spec's post-install script with selinux-policy's `%selinux_set_booleans` macro: users' programs may use executable memory (`selinuxuser_execmod`, `selinuxuser_execheap`, `selinuxuser_execstack`), as on Aeon. Removing the package restores the previous values
 
 Only the build descriptions (`*.spec`, `README.md`, `.obs/`) and the record of the copied files (`UPSTREAM.md`, `upstream.list`, `scripts/check-upstream`, and the pre-push hook in `.githooks/` that runs the check before every push) live at the repository root. Per-file provenance is in the TC Benchtop design notes under `Performance/`.
-
-## Conflicts
-
-The spec conflicts with two openSUSE packages that would otherwise arrive through optional dependencies:
-
-- `flatpak-remote-flathub`, which adds Flathub system-wide and supplements flatpak; TCBL adds Flathub to each user's own installation instead.
-- `yast2`. TCBL is administered with Cockpit. openSUSE's `yast2-samba-server` supplements `samba` (bnc#386473), so a system with the admin set, which requires Samba, got YaST's core and most of its modules at its next update. Supplements are optional, so with the conflict the solver leaves them out. Installing YaST means removing this package.
 
 ## Precedence
 
