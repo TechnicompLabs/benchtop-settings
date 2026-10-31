@@ -37,6 +37,13 @@ Layout:
 
 Only the build descriptions (`*.spec`, `README.md`, `.obs/`) and the record of the copied files (`UPSTREAM.md`, `upstream.list`, `scripts/check-upstream`, and the pre-push hook in `.githooks/` that runs the check before every push) live at the repository root. Per-file provenance is in the TC Benchtop design notes under `Performance/`.
 
+## Conflicts
+
+The spec conflicts with two openSUSE packages that would otherwise arrive through optional dependencies:
+
+- `flatpak-remote-flathub`, which adds Flathub system-wide and supplements flatpak; TCBL adds Flathub to each user's own installation instead.
+- `yast2`. TCBL is administered with Cockpit. openSUSE's `yast2-samba-server` supplements `samba` (bnc#386473), so a system with the admin set, which requires Samba, got YaST's core and most of its modules at its next update. Supplements are optional, so with the conflict the solver leaves them out. Installing YaST means removing this package.
+
 ## Precedence
 
 All drop-ins use a `90-tcbl-` filename prefix so they sort lexicographically after openSUSE's own vendor defaults (which live at lower numbers such as `50-` in the same `/usr/lib` directories) and therefore win. Drop-ins are applied in filename order across `/usr/lib`, `/run` and `/etc`, and the last file wins; the `90` band still leaves `9x` and `/etc` free for a local administrator to override.

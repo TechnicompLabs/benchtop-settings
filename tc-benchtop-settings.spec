@@ -55,6 +55,12 @@ Requires:       flatpak
 # in wherever supplements are followed. Adding the remote by hand
 # (flatpak remote-add --system) still works.
 Conflicts:      flatpak-remote-flathub
+# TCBL is administered with Cockpit, not YaST. openSUSE's yast2-samba-server
+# supplements samba (bnc#386473), so on a system with Samba (the admin set) the
+# solver would add it, and with it YaST's core, libraries and other modules,
+# whenever it follows supplements, as automatic updates do. Supplements are
+# optional, so with this conflict the solver leaves them out instead.
+Conflicts:      yast2
 # 59-tcbl-family-prefer.conf is a fontconfig configuration
 Requires:       fontconfig
 # the rpm macro that keeps the launchers of terminal programs out
@@ -98,6 +104,7 @@ updates (including x86-64-v3 optimized libraries), NetworkManager,
 systemd-resolved and zram swap enabled, zypper's single rpm transaction, the
 SELinux booleans that let users' programs use executable memory (as on Aeon),
 the kernel command line options (an sdbootutil drop-in), graphical-only logins,
+no YaST (TCBL is administered with Cockpit),
 Flathub in each user's own Flatpak installation, and Homebrew in each user's
 home, installed on first use.
 
