@@ -85,8 +85,9 @@ and Sea Islands GPUs, crash logs kept across reboots (UEFI pstore), ntsync
 loading for Wine and Proton, i2c-dev loading and SMBus access for
 administrators (OpenRGB), network capture without root for administrators
 (Wireshark's dumpcap), realtime-audio and memlock resource limits, the
-systemd-resolved DNS backend selection, the Brave enterprise policy, Noto as
-the default sans-serif and monospace fonts, the TCBL package repository with
+systemd-resolved DNS backend selection, the Brave enterprise policy, System76
+Scheduler and the Benchtop Focus Priority extension enabled, Noto as the
+default sans-serif and monospace fonts, the TCBL package repository with
 its signing key, the services and reboot handling of automatic transactional
 updates (including x86-64-v3 optimized libraries), NetworkManager,
 systemd-resolved and zram swap enabled, zypper's single rpm transaction, the
@@ -306,10 +307,12 @@ fi
 %{_userunitdir}/tcbl-flathub.service
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/flathub.flatpakrepo
-# GNOME Software: Flatpak files opened from outside it install per user
+# GSettings: GNOME Software installs Flatpak files opened from outside it per
+# user; the Benchtop Focus Priority extension is enabled by default
 %dir %{_datadir}/glib-2.0
 %dir %{_datadir}/glib-2.0/schemas
 %{_datadir}/glib-2.0/schemas/90-tcbl-gnome-software.gschema.override
+%{_datadir}/glib-2.0/schemas/90-tcbl-gnome-shell.gschema.override
 # fontconfig: Noto as the default sans-serif and monospace fonts
 %{_datadir}/fontconfig/conf.avail/59-tcbl-family-prefer.conf
 %config %{_sysconfdir}/fonts/conf.d/59-tcbl-family-prefer.conf

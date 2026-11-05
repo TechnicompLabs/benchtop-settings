@@ -22,6 +22,10 @@ enable systemd-resolved.service
 # swap compressed in memory (systemd-zram-service); openSUSE's presets leave it
 # off
 enable zramswap.service
+# process priorities by profile, and for the focused application
+# (system76-scheduler; 90-tcbl-gnome-shell.gschema.override enables the
+# extension that reports it)
+enable com.system76.Scheduler.service
 
 # graphical logins only: no text login on the first console (see
 # logind.conf.d/90-tcbl-no-text-login.conf for the others)

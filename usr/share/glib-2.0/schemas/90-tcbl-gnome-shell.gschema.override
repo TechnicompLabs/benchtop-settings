@@ -1,0 +1,6 @@
+# Technicomp Benchtop Linux: GNOME Shell extensions enabled by default. Benchtop
+# Focus Priority (its own package, which the base pattern requires) reports the
+# focused window to System76 Scheduler. Users who have changed their list of
+# enabled extensions keep their own.
+[org.gnome.shell]
+enabled-extensions=['focus-priority@technicomplabs.github.io']
