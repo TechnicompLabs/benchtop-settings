@@ -88,7 +88,7 @@ and Sea Islands GPUs, crash logs kept across reboots (UEFI pstore), ntsync
 loading for Wine and Proton, i2c-dev loading and SMBus access for
 administrators (OpenRGB), network capture without root for administrators
 (Wireshark's dumpcap), realtime-audio and memlock resource limits, the
-systemd-resolved DNS backend selection, the Brave enterprise policy, System76
+systemd-resolved DNS backend selection, System76
 Scheduler and the Benchtop Focus Priority extension enabled, Noto as the
 default sans-serif and monospace fonts, the TCBL package repository with
 its signing key, the services and reboot handling of automatic transactional
@@ -380,11 +380,6 @@ fi
 %dir %{_sysconfdir}/security/limits.d
 %config %{_sysconfdir}/security/limits.d/90-tcbl-audio.conf
 %config %{_sysconfdir}/security/limits.d/90-tcbl-memlock.conf
-# Brave enterprise policy
-%dir %{_sysconfdir}/brave
-%dir %{_sysconfdir}/brave/policies
-%dir %{_sysconfdir}/brave/policies/managed
-%config %{_sysconfdir}/brave/policies/managed/tc-benchtop.json
 # zypper: one rpm transaction per installation
 %dir %{_distconfdir}/zypp
 %dir %{_distconfdir}/zypp/zypp.conf.d

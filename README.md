@@ -27,7 +27,6 @@ Layout:
 - `usr/etc/transactional-update.conf.d/` - after an automatic update, notify the logged-in users instead of rebooting
 - `usr/lib/NetworkManager/conf.d/` - systemd-resolved as the DNS backend
 - `etc/security/limits.d/` - realtime-audio scheduling and memlock limits
-- `etc/brave/policies/managed/` - Brave enterprise policy
 - `usr/lib/kernel/cmdline.d/` - the kernel command line options that cannot be set anywhere else (boot messages and splash, SELinux, the PCR 15 check, threaded interrupts, RCU callbacks off every CPU, the Intel IOMMU). sdbootutil adds the file to every boot entry it writes; a file of the same name in `/etc/kernel/cmdline.d` replaces it. sdbootutil read this directory as `/usr/kernel/cmdline.d` until its fix for [issue 467](https://github.com/openSUSE/sdbootutil/issues/467), so the spec also links the file there; its `%check` fails the build once Tumbleweed's sdbootutil no longer reads the old directory, as the reminder to remove the link
 - `usr/etc/zypp/zypp.conf.d/` - zypper installs each transaction in a single rpm transaction (`techpreview.ZYPP_SINGLE_RPMTRANS`), as on Aeon
 - `etc/zypp/repos.d/` - the TCBL package repository (OBS home:technicomp:benchtop), at priority 90, above the openSUSE repositories
