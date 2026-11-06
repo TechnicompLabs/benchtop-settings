@@ -2,19 +2,22 @@
 # themes in the user's Flatpak installation, at every login; see
 # /usr/libexec/tcbl/default-applications. While a step that needs the network
 # fails (at the first login Wi-Fi is often not set up yet), it tries again every
-# minute until it succeeds, and again at the next login.
+# 5 minutes for 30 minutes, and again at the next login.
 [Unit]
 Description=Default applications and themes in the user's Flatpak installation
 # not for system accounts (the login screen, GNOME's initial setup)
 ConditionUser=!@system
 # Flathub is added to the user's installation first
 After=configure-user-flathub.service
+# the first try and 6 more, 5 minutes apart
+StartLimitIntervalSec=35min
+StartLimitBurst=7
 
 [Service]
 Type=oneshot
 ExecStart=/usr/libexec/tcbl/default-applications
 Restart=on-failure
-RestartSec=1min
+RestartSec=5min
 
 [Install]
 WantedBy=default.target
