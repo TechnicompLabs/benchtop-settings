@@ -1,0 +1,9 @@
+# Technicomp Benchtop Linux: started by 90-tcbl-thunderbolt-rescan.rules
+[Unit]
+Description=Rescan the PCI buses after a Thunderbolt connection
+
+[Service]
+Type=oneshot
+# the PCIe tunnel needs a moment after authorization
+ExecStartPre=/usr/bin/sleep 0.5
+ExecStart=/bin/sh -c 'echo 1 > /sys/bus/pci/rescan'

@@ -56,7 +56,7 @@ Requires:       %{name}-rpm = %{version}-%{release}
 # openSUSE's macros that apply newly installed or changed presets
 BuildRequires:  systemd-presets-common-SUSE-devel
 %{?systemd_preset_requires}
-# macros for tcbl-x86-64-v3.service and tcbl-flathub.service
+# macros for tcbl-x86-64-v3.service, tcbl-pci-rescan.service and tcbl-flathub.service
 BuildRequires:  systemd-rpm-macros
 # the dracut module (95tcbl-lid-poweroff) is part of the initrd, which is
 # regenerated when it changes
@@ -79,7 +79,8 @@ Requires(postun): policycoreutils-python-utils
 System-level defaults for Technicomp Benchtop Linux (an immutable
 Tumbleweed-based openSUSE derivative, built against openSUSE:Factory):
 VM/network/scheduler sysctls, Magic SysRq keys and lockup detectors off, I/O
-scheduler and USB writeback udev rules, THP (with the THP shrinker) and MGLRU
+scheduler and USB writeback udev rules, a PCI rescan after Thunderbolt
+connections, THP (with the THP shrinker) and MGLRU
 tmpfiles policies, core dumps deleted after 3 days, /tmp limited to 20% of
 RAM and cleaned after 3 days, /var/tmp cleaned after 30 days, shutdown timeouts (system
 and user session), boot status messages only for failed or slow steps, watchdog
@@ -189,14 +190,14 @@ fi
 %pre
 %systemd_preset_pre
 %systemd_user_preset_pre
-%service_add_pre tcbl-x86-64-v3.service
+%service_add_pre tcbl-x86-64-v3.service tcbl-pci-rescan.service
 %systemd_user_pre tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
 
 %post
 %systemd_preset_post
 %regenerate_initrd_post
 %systemd_user_preset_post
-%service_add_post tcbl-x86-64-v3.service
+%service_add_post tcbl-x86-64-v3.service tcbl-pci-rescan.service
 %systemd_user_post tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
 # systemd enabled the tty1 login before this package's preset existed. The
 # macro calls systemctl unguarded, and OBS's install test has no systemd.
@@ -220,11 +221,11 @@ fi
 %systemd_user_preset_posttrans
 
 %preun
-%service_del_preun tcbl-x86-64-v3.service
+%service_del_preun tcbl-x86-64-v3.service tcbl-pci-rescan.service
 %systemd_user_preun tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
 
 %postun
-%service_del_postun_without_restart tcbl-x86-64-v3.service
+%service_del_postun_without_restart tcbl-x86-64-v3.service tcbl-pci-rescan.service
 %regenerate_initrd_post
 %systemd_user_postun tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
 # after removal, dumpcap returns to openSUSE's permissions
@@ -248,6 +249,9 @@ fi
 %{_prefix}/lib/udev/rules.d/90-tcbl-iosched.rules
 %{_prefix}/lib/udev/rules.d/90-tcbl-usb-writeback.rules
 %{_prefix}/lib/udev/rules.d/90-tcbl-i2c-wheel.rules
+# PCI rescan after a Thunderbolt connection
+%{_prefix}/lib/udev/rules.d/90-tcbl-thunderbolt-rescan.rules
+%{_unitdir}/tcbl-pci-rescan.service
 # udev rules and programs copied unchanged from other projects, for hardware
 # support: upstream.list names the source of each, UPSTREAM.md the choices
 # game-devices-udev: game controllers and VR headsets
