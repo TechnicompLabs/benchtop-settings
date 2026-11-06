@@ -1,0 +1,50 @@
+#!/bin/bash
+# SPDX-License-Identifier: MIT
+# Technicomp Benchtop Linux: the user's Flatpak applications get the system's
+# themes (run by tcbl-themes.service at login and by tcbl-themes.timer daily).
+#
+# - adw-gtk3 for GTK 3 applications: Flathub's org.gtk.Gtk3theme.adw-gtk3 and
+#   adw-gtk3-dark, installed once into the user's installation (a user who
+#   removes them does not get them back).
+# - Kvantum for Qt applications: Flathub's org.kde.KStyle.Kvantum, for each
+#   branch of the KDE runtime (org.kde.Platform) the user has, so that new
+#   runtimes get it too.
+# - The Kvantum themes copied into ~/.config/Kvantum, which Flatpak
+#   applications can read (system-wide override), and KvLibadwaita as the
+#   theme when the user has not chosen one.
+# Steps that need the network fail quietly offline and are tried again on the
+# next run.
+set -u
+status=0
+state="${XDG_STATE_HOME:-$HOME/.local/state}/tc-benchtop"
+config="${XDG_CONFIG_HOME:-$HOME/.config}/Kvantum"
+
+if flatpak remotes --user --columns=name | grep -qx flathub; then
+    if [ ! -e "$state/adw-gtk3-flatpak" ]; then
+        if flatpak install --user --noninteractive --or-update flathub \
+               org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark; then
+            mkdir -p "$state" && touch "$state/adw-gtk3-flatpak"
+        else
+            status=1
+        fi
+    fi
+
+    for branch in $(flatpak list --user --runtime --columns=application,branch |
+                    awk '$1 == "org.kde.Platform" { print $2 }' | sort -u); do
+        flatpak info --user "org.kde.KStyle.Kvantum//$branch" > /dev/null 2>&1 && continue
+        # Flathub may not have Kvantum for every runtime branch
+        flatpak install --user --noninteractive flathub "org.kde.KStyle.Kvantum//$branch" ||
+            echo "Kvantum is not available for KDE runtime $branch" >&2
+    done
+fi
+
+mkdir -p "$config"
+for theme in /usr/share/Kvantum/KvLibadwaita /usr/share/Kvantum/KvYaru-*; do
+    [ -e "$theme" ] || continue
+    cp -a -u "$theme" "$config/" || status=1
+done
+if [ ! -e "$config/kvantum.kvconfig" ] && [ -d "$config/KvLibadwaita" ]; then
+    printf '[General]\ntheme=KvLibadwaita\n' > "$config/kvantum.kvconfig" || status=1
+fi
+
+exit $status

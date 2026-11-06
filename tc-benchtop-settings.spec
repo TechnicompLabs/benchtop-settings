@@ -93,8 +93,9 @@ updates (including x86-64-v3 optimized libraries), NetworkManager,
 systemd-resolved and zram swap enabled, zypper's single rpm transaction, the
 SELinux booleans that let users' programs use executable memory (as on Aeon),
 the kernel command line options (an sdbootutil drop-in), graphical-only logins,
-Flathub in each user's own Flatpak installation, and Homebrew in each user's
-home, installed on first use.
+Flathub in each user's own Flatpak installation, adw-gtk3 as the GTK 3 theme
+and Kvantum (KvLibadwaita) as the Qt style, for host and Flatpak applications,
+and Homebrew in each user's home, installed on first use.
 
 It also carries udev rules copied unchanged from other projects, for hardware
 support: game controllers and VR headsets (game-devices-udev); Framework Laptop
@@ -140,6 +141,7 @@ install -d "%{buildroot}"
 ( cd "$treeroot" && cp -a --no-preserve=ownership usr etc "%{buildroot}/" )
 # the programs are executable however the sources were checked out
 chmod 0755 %{buildroot}%{_prefix}/bin/brew \
+    %{buildroot}%{_libexecdir}/tcbl/themes-for-flatpak \
     %{buildroot}%{_prefix}/lib/udev/audio-pm-ctl \
     %{buildroot}%{_prefix}/sbin/iw-setregdomain
 # Flathub's remote file (its URL and signing key) for tcbl-flathub.service,
@@ -181,13 +183,13 @@ fi
 %systemd_preset_pre
 %systemd_user_preset_pre
 %service_add_pre tcbl-x86-64-v3.service
-%systemd_user_pre tcbl-flathub.service
+%systemd_user_pre tcbl-flathub.service tcbl-themes.service tcbl-themes.timer
 
 %post
 %systemd_preset_post
 %systemd_user_preset_post
 %service_add_post tcbl-x86-64-v3.service
-%systemd_user_post tcbl-flathub.service
+%systemd_user_post tcbl-flathub.service tcbl-themes.service tcbl-themes.timer
 # systemd enabled the tty1 login before this package's preset existed. The
 # macro calls systemctl unguarded, and OBS's install test has no systemd.
 if [ -x /usr/bin/systemctl ]; then
@@ -210,11 +212,11 @@ fi
 
 %preun
 %service_del_preun tcbl-x86-64-v3.service
-%systemd_user_preun tcbl-flathub.service
+%systemd_user_preun tcbl-flathub.service tcbl-themes.service tcbl-themes.timer
 
 %postun
 %service_del_postun_without_restart tcbl-x86-64-v3.service
-%systemd_user_postun tcbl-flathub.service
+%systemd_user_postun tcbl-flathub.service tcbl-themes.service tcbl-themes.timer
 # after removal, dumpcap returns to openSUSE's permissions
 if [ $1 -eq 0 ] && [ -e /usr/bin/dumpcap ]; then
 %set_permissions /usr/bin/dumpcap
@@ -307,12 +309,26 @@ fi
 %{_userunitdir}/tcbl-flathub.service
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/flathub.flatpakrepo
+# themes for each user's Flatpak applications (adw-gtk3, Kvantum and its
+# themes), at login and daily, and the system-wide Flatpak override for Qt
+# applications (copied into /var/lib/flatpak/overrides by tmpfiles.d)
+%{_userunitdir}/tcbl-themes.service
+%{_userunitdir}/tcbl-themes.timer
+%dir %{_libexecdir}/tcbl
+%{_libexecdir}/tcbl/themes-for-flatpak
+%{_datadir}/%{name}/flatpak-override-global
+%{_prefix}/lib/tmpfiles.d/90-tcbl-flatpak.conf
+# Qt applications use the Kvantum style (systemd's user environment)
+%dir %{_prefix}/lib/environment.d
+%{_prefix}/lib/environment.d/90-tcbl-qt.conf
 # GSettings: GNOME Software installs Flatpak files opened from outside it per
-# user; the Benchtop Focus Priority extension is enabled by default
+# user; the Benchtop Focus Priority extension is enabled by default; adw-gtk3
+# is the GTK 3 theme
 %dir %{_datadir}/glib-2.0
 %dir %{_datadir}/glib-2.0/schemas
 %{_datadir}/glib-2.0/schemas/90-tcbl-gnome-software.gschema.override
 %{_datadir}/glib-2.0/schemas/90-tcbl-gnome-shell.gschema.override
+%{_datadir}/glib-2.0/schemas/90-tcbl-gtk-theme.gschema.override
 # fontconfig: Noto as the default sans-serif and monospace fonts
 %{_datadir}/fontconfig/conf.avail/59-tcbl-family-prefer.conf
 %config %{_sysconfdir}/fonts/conf.d/59-tcbl-family-prefer.conf

@@ -1,0 +1,7 @@
+# Technicomp Benchtop Linux: adw-gtk3 (adw-gtk3-theme) as the theme of GTK 3
+# applications, so that they match libadwaita applications; GNOME's default is
+# Adwaita's GTK 3 theme. Flatpak applications get it from the
+# org.gtk.Gtk3theme.adw-gtk3 extensions, which tcbl-themes.service installs for
+# each user. Users who have chosen another theme keep it.
+[org.gnome.desktop.interface]
+gtk-theme='adw-gtk3'

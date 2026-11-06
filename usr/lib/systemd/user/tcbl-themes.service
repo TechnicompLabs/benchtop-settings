@@ -1,0 +1,17 @@
+# Technicomp Benchtop Linux: the system's themes for the user's Flatpak
+# applications (adw-gtk3 for GTK 3, Kvantum and its themes for Qt); see
+# /usr/libexec/tcbl/themes-for-flatpak. Runs at login and daily
+# (tcbl-themes.timer).
+[Unit]
+Description=Themes for the user's Flatpak applications
+# not for system accounts (the login screen, GNOME's initial setup)
+ConditionUser=!@system
+# Flathub is added to the user's installation first
+After=tcbl-flathub.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/tcbl/themes-for-flatpak
+
+[Install]
+WantedBy=default.target
