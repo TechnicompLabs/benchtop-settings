@@ -1,7 +1,8 @@
 # Technicomp Benchtop Linux: the default applications (once) and the system's
 # themes in the user's Flatpak installation, at every login; see
 # /usr/libexec/tcbl/default-applications. While a step that needs the network
-# fails, it tries again every 10 minutes.
+# fails (at the first login Wi-Fi is often not set up yet), it tries again every
+# minute until it succeeds, and again at the next login.
 [Unit]
 Description=Default applications and themes in the user's Flatpak installation
 # not for system accounts (the login screen, GNOME's initial setup)
@@ -13,7 +14,7 @@ After=configure-user-flathub.service
 Type=oneshot
 ExecStart=/usr/libexec/tcbl/default-applications
 Restart=on-failure
-RestartSec=10min
+RestartSec=1min
 
 [Install]
 WantedBy=default.target
