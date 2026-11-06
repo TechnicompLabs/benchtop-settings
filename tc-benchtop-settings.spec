@@ -98,9 +98,9 @@ SELinux booleans that let users' programs use executable memory (as on Aeon),
 the kernel command line options (an sdbootutil drop-in), graphical-only logins,
 Flathub in each user's own Flatpak installation, adw-gtk3 as the GTK 3 theme
 and Kvantum (KvLibadwaita) as the Qt style, for host and Flatpak applications,
-a power-off at the disk prompt when the lid has been closed on battery for 3
-minutes (a dracut module), and Homebrew in each user's home, installed on first
-use.
+chrony reading the hardware clock as UTC, a power-off at the disk prompt when
+the lid has been closed on battery for 3 minutes (a dracut module), and
+Homebrew in each user's home, installed on first use.
 
 It also carries udev rules copied unchanged from other projects, for hardware
 support: game controllers and VR headsets (game-devices-udev); Framework Laptop
@@ -359,6 +359,9 @@ fi
 # transactional-update: notify instead of rebooting after automatic updates
 %dir %{_distconfdir}/transactional-update.conf.d
 %{_distconfdir}/transactional-update.conf.d/90-tcbl-reboot.conf
+# chrony: the hardware clock keeps UTC (or what /etc/adjtime says)
+%dir %{_distconfdir}/chrony.d
+%{_distconfdir}/chrony.d/90-tcbl-rtc.conf
 # NetworkManager
 %dir %{_prefix}/lib/NetworkManager
 %dir %{_prefix}/lib/NetworkManager/conf.d
