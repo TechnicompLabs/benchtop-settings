@@ -7,7 +7,7 @@ Description=Themes for the user's Flatpak applications
 # not for system accounts (the login screen, GNOME's initial setup)
 ConditionUser=!@system
 # Flathub is added to the user's installation first
-After=tcbl-flathub.service
+After=configure-user-flathub.service
 
 [Service]
 Type=oneshot

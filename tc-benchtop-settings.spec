@@ -47,7 +47,7 @@ Requires:       procps
 # the drop-in
 Requires:       group(wheel)
 Requires(post): group(wheel)
-# tcbl-flathub.service adds Flathub with flatpak
+# configure-user-flathub.service adds Flathub with flatpak
 Requires:       flatpak
 # 59-tcbl-family-prefer.conf is a fontconfig configuration
 Requires:       fontconfig
@@ -56,14 +56,14 @@ Requires:       %{name}-rpm = %{version}-%{release}
 # openSUSE's macros that apply newly installed or changed presets
 BuildRequires:  systemd-presets-common-SUSE-devel
 %{?systemd_preset_requires}
-# macros for tcbl-x86-64-v3.service, pci-rescan.service and tcbl-flathub.service
+# macros for tcbl-x86-64-v3.service, pci-rescan.service and configure-user-flathub.service
 BuildRequires:  systemd-rpm-macros
 # the dracut module (95tcbl-lid-poweroff) is part of the initrd, which is
 # regenerated when it changes
 %regenerate_initrd_requires
 %{?systemd_ordering}
 # Flathub's remote file, which the install section copies for
-# tcbl-flathub.service
+# configure-user-flathub.service
 BuildRequires:  flatpak-remote-flathub
 # SELinux booleans, set with selinux-policy's own macros (%%selinux_set_booleans)
 %define selinuxbooleans selinuxuser_execmod=1 selinuxuser_execheap=1 selinuxuser_execstack=1
@@ -153,7 +153,7 @@ chmod 0755 %{buildroot}%{_prefix}/bin/brew \
     %{buildroot}%{_libexecdir}/tcbl/themes-for-flatpak \
     %{buildroot}%{_prefix}/lib/udev/audio-pm-ctl \
     %{buildroot}%{_prefix}/sbin/iw-setregdomain
-# Flathub's remote file (its URL and signing key) for tcbl-flathub.service,
+# Flathub's remote file (its URL and signing key) for configure-user-flathub.service,
 # copied from openSUSE's flatpak-remote-flathub, which TCBL's base pattern
 # conflicts with (it adds Flathub system-wide).
 install -D -m 0644 %{_sysconfdir}/flatpak/remotes.d/flathub.flatpakrepo \
@@ -192,14 +192,14 @@ fi
 %systemd_preset_pre
 %systemd_user_preset_pre
 %service_add_pre tcbl-x86-64-v3.service pci-rescan.service
-%systemd_user_pre tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_pre configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
 
 %post
 %systemd_preset_post
 %regenerate_initrd_post
 %systemd_user_preset_post
 %service_add_post tcbl-x86-64-v3.service pci-rescan.service
-%systemd_user_post tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_post configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
 # systemd enabled the tty1 login before this package's preset existed. The
 # macro calls systemctl unguarded, and OBS's install test has no systemd.
 if [ -x /usr/bin/systemctl ]; then
@@ -223,12 +223,12 @@ fi
 
 %preun
 %service_del_preun tcbl-x86-64-v3.service pci-rescan.service
-%systemd_user_preun tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_preun configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
 
 %postun
 %service_del_postun_without_restart tcbl-x86-64-v3.service pci-rescan.service
 %regenerate_initrd_post
-%systemd_user_postun tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_postun configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
 # after removal, dumpcap returns to openSUSE's permissions
 if [ $1 -eq 0 ] && [ -e /usr/bin/dumpcap ]; then
 %set_permissions /usr/bin/dumpcap
@@ -325,9 +325,9 @@ fi
 %{_unitdir}/tcbl-x86-64-v3.service
 # Flathub for each user: the user service that adds it at their first login,
 # and Flathub's remote file
-%{_userunitdir}/tcbl-flathub.service
+%{_userunitdir}/configure-user-flathub.service
 # Firefox from Flathub for each user, once
-%{_userunitdir}/tcbl-firefox.service
+%{_userunitdir}/tcbl-default-applications.service
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/flathub.flatpakrepo
 # themes for each user's Flatpak applications (adw-gtk3, Kvantum and its
