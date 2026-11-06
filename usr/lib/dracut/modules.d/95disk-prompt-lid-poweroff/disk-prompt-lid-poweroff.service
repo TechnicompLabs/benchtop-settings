@@ -1,6 +1,6 @@
 # Technicomp Benchtop Linux: in the initrd, powers the computer off at the disk
 # prompt when the lid has been closed on battery for 3 minutes; see
-# /usr/bin/tcbl-lid-poweroff. It ends when the root file system's device is
+# /usr/bin/disk-prompt-lid-poweroff. It ends when the root file system's device is
 # available, that is, once the disk is unlocked.
 [Unit]
 Description=Power off at the disk prompt when the lid is closed on battery
@@ -10,4 +10,4 @@ Before=initrd-switch-root.target shutdown.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/tcbl-lid-poweroff
+ExecStart=/usr/bin/disk-prompt-lid-poweroff

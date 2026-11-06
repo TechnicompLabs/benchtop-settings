@@ -56,9 +56,9 @@ Requires:       %{name}-rpm = %{version}-%{release}
 # openSUSE's macros that apply newly installed or changed presets
 BuildRequires:  systemd-presets-common-SUSE-devel
 %{?systemd_preset_requires}
-# macros for tcbl-x86-64-v3.service, pci-rescan.service and configure-user-flathub.service
+# macros for x86-64-v3-libraries.service, pci-rescan.service and configure-user-flathub.service
 BuildRequires:  systemd-rpm-macros
-# the dracut module (95tcbl-lid-poweroff) is part of the initrd, which is
+# the dracut module (95disk-prompt-lid-poweroff) is part of the initrd, which is
 # regenerated when it changes
 %regenerate_initrd_requires
 %{?systemd_ordering}
@@ -148,8 +148,8 @@ install -d "%{buildroot}"
 ( cd "$treeroot" && cp -a --no-preserve=ownership usr etc "%{buildroot}/" )
 # the programs are executable however the sources were checked out
 chmod 0755 %{buildroot}%{_prefix}/bin/brew \
-    %{buildroot}%{_prefix}/lib/dracut/modules.d/95tcbl-lid-poweroff/module-setup.sh \
-    %{buildroot}%{_prefix}/lib/dracut/modules.d/95tcbl-lid-poweroff/tcbl-lid-poweroff.sh \
+    %{buildroot}%{_prefix}/lib/dracut/modules.d/95disk-prompt-lid-poweroff/module-setup.sh \
+    %{buildroot}%{_prefix}/lib/dracut/modules.d/95disk-prompt-lid-poweroff/disk-prompt-lid-poweroff.sh \
     %{buildroot}%{_libexecdir}/tcbl/themes-for-flatpak \
     %{buildroot}%{_prefix}/lib/udev/audio-pm-ctl \
     %{buildroot}%{_prefix}/sbin/iw-setregdomain
@@ -191,14 +191,14 @@ fi
 %pre
 %systemd_preset_pre
 %systemd_user_preset_pre
-%service_add_pre tcbl-x86-64-v3.service pci-rescan.service
+%service_add_pre x86-64-v3-libraries.service pci-rescan.service
 %systemd_user_pre configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
 
 %post
 %systemd_preset_post
 %regenerate_initrd_post
 %systemd_user_preset_post
-%service_add_post tcbl-x86-64-v3.service pci-rescan.service
+%service_add_post x86-64-v3-libraries.service pci-rescan.service
 %systemd_user_post configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
 # systemd enabled the tty1 login before this package's preset existed. The
 # macro calls systemctl unguarded, and OBS's install test has no systemd.
@@ -222,11 +222,11 @@ fi
 %systemd_user_preset_posttrans
 
 %preun
-%service_del_preun tcbl-x86-64-v3.service pci-rescan.service
+%service_del_preun x86-64-v3-libraries.service pci-rescan.service
 %systemd_user_preun configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
 
 %postun
-%service_del_postun_without_restart tcbl-x86-64-v3.service pci-rescan.service
+%service_del_postun_without_restart x86-64-v3-libraries.service pci-rescan.service
 %regenerate_initrd_post
 %systemd_user_postun configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
 # after removal, dumpcap returns to openSUSE's permissions
@@ -322,7 +322,7 @@ fi
 %{_prefix}/lib/systemd/system-preset/85-tcbl.preset
 %{_prefix}/lib/systemd/user-preset/85-tcbl.preset
 # x86-64-v3 optimized libraries after automatic updates
-%{_unitdir}/tcbl-x86-64-v3.service
+%{_unitdir}/x86-64-v3-libraries.service
 # Flathub for each user: the user service that adds it at their first login,
 # and Flathub's remote file
 %{_userunitdir}/configure-user-flathub.service
@@ -343,7 +343,7 @@ fi
 # for 3 minutes
 %dir %{_prefix}/lib/dracut
 %dir %{_prefix}/lib/dracut/modules.d
-%{_prefix}/lib/dracut/modules.d/95tcbl-lid-poweroff/
+%{_prefix}/lib/dracut/modules.d/95disk-prompt-lid-poweroff/
 # the Thunderbolt/USB4 driver in the initrd
 %dir %{_prefix}/lib/dracut/dracut.conf.d
 %{_prefix}/lib/dracut/dracut.conf.d/90-tcbl-thunderbolt.conf
