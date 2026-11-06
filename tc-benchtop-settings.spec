@@ -96,7 +96,7 @@ updates (including x86-64-v3 optimized libraries), NetworkManager,
 systemd-resolved and zram swap enabled, zypper's single rpm transaction, the
 SELinux booleans that let users' programs use executable memory (as on Aeon),
 the kernel command line options (an sdbootutil drop-in), graphical-only logins,
-Flathub in each user's own Flatpak installation, adw-gtk3 as the GTK 3 theme
+Flathub and Firefox in each user's own Flatpak installation, adw-gtk3 as the GTK 3 theme
 and Kvantum (KvLibadwaita) as the Qt style, for host and Flatpak applications,
 chrony reading the hardware clock as UTC, a power-off at the disk prompt when
 the lid has been closed on battery for 3 minutes (a dracut module), and
@@ -190,14 +190,14 @@ fi
 %systemd_preset_pre
 %systemd_user_preset_pre
 %service_add_pre tcbl-x86-64-v3.service
-%systemd_user_pre tcbl-flathub.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_pre tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
 
 %post
 %systemd_preset_post
 %regenerate_initrd_post
 %systemd_user_preset_post
 %service_add_post tcbl-x86-64-v3.service
-%systemd_user_post tcbl-flathub.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_post tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
 # systemd enabled the tty1 login before this package's preset existed. The
 # macro calls systemctl unguarded, and OBS's install test has no systemd.
 if [ -x /usr/bin/systemctl ]; then
@@ -221,12 +221,12 @@ fi
 
 %preun
 %service_del_preun tcbl-x86-64-v3.service
-%systemd_user_preun tcbl-flathub.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_preun tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
 
 %postun
 %service_del_postun_without_restart tcbl-x86-64-v3.service
 %regenerate_initrd_post
-%systemd_user_postun tcbl-flathub.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_postun tcbl-flathub.service tcbl-firefox.service tcbl-themes.service tcbl-themes.timer
 # after removal, dumpcap returns to openSUSE's permissions
 if [ $1 -eq 0 ] && [ -e /usr/bin/dumpcap ]; then
 %set_permissions /usr/bin/dumpcap
@@ -321,6 +321,8 @@ fi
 # Flathub for each user: the user service that adds it at their first login,
 # and Flathub's remote file
 %{_userunitdir}/tcbl-flathub.service
+# Firefox from Flathub for each user, once
+%{_userunitdir}/tcbl-firefox.service
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/flathub.flatpakrepo
 # themes for each user's Flatpak applications (adw-gtk3, Kvantum and its

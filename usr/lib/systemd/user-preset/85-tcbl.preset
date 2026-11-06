@@ -4,6 +4,8 @@ enable transactional-update-notifier.service
 
 # adds Flathub to each user's own Flatpak installation at their first login
 enable tcbl-flathub.service
+# installs Firefox from Flathub for each user, once
+enable tcbl-firefox.service
 
 # the system's themes for the user's Flatpak applications, at login and daily
 enable tcbl-themes.service
