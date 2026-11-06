@@ -322,8 +322,8 @@ fi
 %dir %{_prefix}/lib/environment.d
 %{_prefix}/lib/environment.d/90-tcbl-qt.conf
 # GSettings: GNOME Software installs Flatpak files opened from outside it per
-# user; the Benchtop Focus Priority extension is enabled by default; adw-gtk3
-# is the GTK 3 theme
+# user; the Benchtop Focus Priority and Benchtop Theme Switcher extensions are
+# enabled by default; adw-gtk3 is the GTK 3 theme
 %dir %{_datadir}/glib-2.0
 %dir %{_datadir}/glib-2.0/schemas
 %{_datadir}/glib-2.0/schemas/90-tcbl-gnome-software.gschema.override

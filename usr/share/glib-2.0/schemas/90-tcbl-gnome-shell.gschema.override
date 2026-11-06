@@ -1,6 +1,7 @@
-# Technicomp Benchtop Linux: GNOME Shell extensions enabled by default. Benchtop
-# Focus Priority (its own package, which the base pattern requires) reports the
-# focused window to System76 Scheduler. Users who have changed their list of
-# enabled extensions keep their own.
+# Technicomp Benchtop Linux: GNOME Shell extensions enabled by default, each its
+# own package, which the base pattern requires: Benchtop Focus Priority reports
+# the focused window to System76 Scheduler; Benchtop Theme Switcher switches the
+# GTK 3 and Kvantum themes to their dark variants with the system's style.
+# Users who have changed their list of enabled extensions keep their own.
 [org.gnome.shell]
-enabled-extensions=['focus-priority@technicomplabs.github.io']
+enabled-extensions=['focus-priority@technicomplabs.github.io', 'theme-switcher@technicomplabs.github.io']
