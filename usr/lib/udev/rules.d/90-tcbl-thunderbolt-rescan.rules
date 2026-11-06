@@ -2,5 +2,5 @@
 # USB4 device is authorized, because pciehp sometimes misses the devices behind
 # a new PCIe tunnel (docks on AMD USB4 laptops among them). A rescan that finds
 # nothing new changes nothing. Turn it off with:
-#     systemctl mask tcbl-pci-rescan.service
-ACTION=="add|change", SUBSYSTEM=="thunderbolt", ENV{DEVTYPE}=="thunderbolt_device", ATTR{authorized}=="1", RUN+="/usr/bin/systemctl --no-block start tcbl-pci-rescan.service"
+#     systemctl mask pci-rescan.service
+ACTION=="add|change", SUBSYSTEM=="thunderbolt", ENV{DEVTYPE}=="thunderbolt_device", ATTR{authorized}=="1", RUN+="/usr/bin/systemctl --no-block start pci-rescan.service"
