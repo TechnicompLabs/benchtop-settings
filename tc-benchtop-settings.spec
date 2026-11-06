@@ -251,7 +251,7 @@ fi
 %{_prefix}/lib/udev/rules.d/90-tcbl-usb-writeback.rules
 %{_prefix}/lib/udev/rules.d/90-tcbl-i2c-wheel.rules
 # PCI rescan after a Thunderbolt connection
-%{_prefix}/lib/udev/rules.d/90-tcbl-thunderbolt-rescan.rules
+%{_prefix}/lib/udev/rules.d/90-thunderbolt-pci-rescan.rules
 %{_unitdir}/pci-rescan.service
 # udev rules and programs copied unchanged from other projects, for hardware
 # support: upstream.list names the source of each, UPSTREAM.md the choices
@@ -283,7 +283,7 @@ fi
 # D-Bus: ratbagd for every user, as upstream allows (openSUSE: games group)
 %dir %{_datadir}/dbus-1
 %dir %{_datadir}/dbus-1/system.d
-%{_datadir}/dbus-1/system.d/tcbl-ratbagd.conf
+%{_datadir}/dbus-1/system.d/ratbagd-all-users.conf
 # tmpfiles
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp.conf
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp-shrinker.conf
@@ -346,7 +346,7 @@ fi
 %{_prefix}/lib/dracut/modules.d/95disk-prompt-lid-poweroff/
 # the Thunderbolt/USB4 driver in the initrd
 %dir %{_prefix}/lib/dracut/dracut.conf.d
-%{_prefix}/lib/dracut/dracut.conf.d/90-tcbl-thunderbolt.conf
+%{_prefix}/lib/dracut/dracut.conf.d/90-thunderbolt.conf
 # Qt applications use the Kvantum style (systemd's user environment)
 %dir %{_prefix}/lib/environment.d
 %{_prefix}/lib/environment.d/90-tcbl-qt.conf

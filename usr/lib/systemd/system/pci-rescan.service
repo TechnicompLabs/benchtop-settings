@@ -1,4 +1,4 @@
-# Technicomp Benchtop Linux: started by 90-tcbl-thunderbolt-rescan.rules
+# Technicomp Benchtop Linux: started by 90-thunderbolt-pci-rescan.rules
 [Unit]
 Description=Rescan the PCI buses after a Thunderbolt connection
 
