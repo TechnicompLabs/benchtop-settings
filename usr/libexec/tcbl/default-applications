@@ -1,0 +1,68 @@
+#!/bin/bash
+# SPDX-License-Identifier: MIT
+# Technicomp Benchtop Linux: the default applications and the system's themes in
+# each user's Flatpak installation, at every login
+# (tcbl-default-applications.service).
+#
+# - Firefox, once: a user who removes it does not get it back. A Firefox the
+#   user already has, in either installation, counts.
+# - adw-gtk3 for GTK 3 applications (org.gtk.Gtk3theme.adw-gtk3, -dark), once.
+# - Kvantum for Qt applications (org.kde.KStyle.Kvantum), for each KDE runtime
+#   branch that Flathub still supports and each one the user has, wherever
+#   Flathub builds Kvantum for it; branches added later are picked up at the
+#   next login.
+# - The Kvantum themes copied into ~/.config/Kvantum, which Flatpak
+#   applications can read (system-wide override), and KvLibadwaita as the theme
+#   when the user has not chosen one.
+# A step that needs the network and fails makes the script fail, so that the
+# service tries again.
+set -u
+status=0
+state="${XDG_STATE_HOME:-$HOME/.local/state}/tc-benchtop"
+config="${XDG_CONFIG_HOME:-$HOME/.config}/Kvantum"
+
+# install REF... once, recorded by the marker file NAME
+once() {
+    local name=$1
+    shift
+    [ -e "$state/$name" ] && return 0
+    if flatpak install --user --noninteractive --or-update flathub "$@"; then
+        mkdir -p "$state" && touch "$state/$name"
+    else
+        status=1
+    fi
+}
+
+if flatpak remotes --user --columns=name | grep -qx flathub; then
+    if [ ! -e "$state/firefox-installed" ] &&
+       flatpak info org.mozilla.firefox > /dev/null 2>&1; then
+        mkdir -p "$state" && touch "$state/firefox-installed"
+    fi
+    once firefox-installed org.mozilla.firefox
+    once adw-gtk3-flatpak org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark
+
+    if refs=$(flatpak remote-ls --user --all --columns=application,branch,options flathub); then
+        kvantum=$(awk -F'\t' '$1 == "org.kde.KStyle.Kvantum" { print $2 }' <<< "$refs")
+        supported=$(awk -F'\t' '$1 == "org.kde.Platform" && $3 !~ /eol=/ { print $2 }' <<< "$refs")
+        have=$(flatpak list --user --runtime --columns=application,branch |
+               awk '$1 == "org.kde.Platform" { print $2 }')
+        for branch in $(printf '%s\n%s\n' "$supported" "$have" | sort -u); do
+            grep -qx -- "$branch" <<< "$kvantum" || continue
+            flatpak info --user "org.kde.KStyle.Kvantum//$branch" > /dev/null 2>&1 && continue
+            flatpak install --user --noninteractive flathub "org.kde.KStyle.Kvantum//$branch" || status=1
+        done
+    else
+        status=1
+    fi
+fi
+
+mkdir -p "$config"
+for theme in /usr/share/Kvantum/KvLibadwaita /usr/share/Kvantum/KvYaru-*; do
+    [ -e "$theme" ] || continue
+    cp -a -u "$theme" "$config/" || status=1
+done
+if [ ! -e "$config/kvantum.kvconfig" ] && [ -d "$config/KvLibadwaita" ]; then
+    printf '[General]\ntheme=KvLibadwaita\n' > "$config/kvantum.kvconfig" || status=1
+fi
+
+exit $status

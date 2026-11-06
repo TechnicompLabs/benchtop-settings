@@ -1,21 +1,17 @@
-# Technicomp Benchtop Linux: installs Firefox from Flathub in each user's own
-# Flatpak installation, once; the marker keeps a user who removes it from
-# getting it back. Retries every 10 minutes while offline.
+# Technicomp Benchtop Linux: the default applications (once) and the system's
+# themes in the user's Flatpak installation, at every login; see
+# /usr/libexec/tcbl/default-applications. While a step that needs the network
+# fails, it tries again every 10 minutes.
 [Unit]
-Description=Install the default applications in the user's Flatpak installation
+Description=Default applications and themes in the user's Flatpak installation
+# not for system accounts (the login screen, GNOME's initial setup)
 ConditionUser=!@system
-# needs Flathub in the user's installation (the USB's tik and Create User
-# accounts have none)
-ConditionPathExists=%S/tc-benchtop/flathub-added
-ConditionPathExists=!%S/tc-benchtop/firefox-installed
-After=configure-user-flathub.service tcbl-themes.service
+# Flathub is added to the user's installation first
+After=configure-user-flathub.service
 
 [Service]
 Type=oneshot
-StateDirectory=tc-benchtop
-# a Firefox the user already has, in either installation, counts
-ExecStart=/bin/sh -c '/usr/bin/flatpak info org.mozilla.firefox >/dev/null 2>&1 || exec /usr/bin/flatpak install --user --noninteractive flathub org.mozilla.firefox'
-ExecStartPost=/usr/bin/touch %S/tc-benchtop/firefox-installed
+ExecStart=/usr/libexec/tcbl/default-applications
 Restart=on-failure
 RestartSec=10min
 

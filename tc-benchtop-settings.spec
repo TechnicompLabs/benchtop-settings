@@ -150,7 +150,7 @@ install -d "%{buildroot}"
 chmod 0755 %{buildroot}%{_prefix}/bin/brew \
     %{buildroot}%{_prefix}/lib/dracut/modules.d/95disk-prompt-lid-poweroff/module-setup.sh \
     %{buildroot}%{_prefix}/lib/dracut/modules.d/95disk-prompt-lid-poweroff/disk-prompt-lid-poweroff.sh \
-    %{buildroot}%{_libexecdir}/tcbl/themes-for-flatpak \
+    %{buildroot}%{_libexecdir}/tcbl/default-applications \
     %{buildroot}%{_prefix}/lib/udev/audio-pm-ctl \
     %{buildroot}%{_prefix}/sbin/iw-setregdomain
 # Flathub's remote file (its URL and signing key) for configure-user-flathub.service,
@@ -192,14 +192,14 @@ fi
 %systemd_preset_pre
 %systemd_user_preset_pre
 %service_add_pre x86-64-v3-libraries.service pci-rescan.service
-%systemd_user_pre configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_pre configure-user-flathub.service tcbl-default-applications.service
 
 %post
 %systemd_preset_post
 %regenerate_initrd_post
 %systemd_user_preset_post
 %service_add_post x86-64-v3-libraries.service pci-rescan.service
-%systemd_user_post configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_post configure-user-flathub.service tcbl-default-applications.service
 # systemd enabled the tty1 login before this package's preset existed. The
 # macro calls systemctl unguarded, and OBS's install test has no systemd.
 if [ -x /usr/bin/systemctl ]; then
@@ -220,15 +220,24 @@ fi
 %systemd_preset_posttrans
 %regenerate_initrd_posttrans
 %systemd_user_preset_posttrans
+# units renamed or merged in November 2026: remove the old names' enablement
+# links (drop this once every system has updated)
+for link in /etc/systemd/user/*.wants/tcbl-flathub.service \
+            /etc/systemd/user/*.wants/tcbl-firefox.service \
+            /etc/systemd/user/*.wants/tcbl-themes.service \
+            /etc/systemd/user/*.wants/tcbl-themes.timer \
+            /etc/systemd/system/*.wants/tcbl-x86-64-v3.service; do
+    if [ -L "$link" ] && [ ! -e "$link" ]; then rm -f "$link"; fi
+done
 
 %preun
 %service_del_preun x86-64-v3-libraries.service pci-rescan.service
-%systemd_user_preun configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_preun configure-user-flathub.service tcbl-default-applications.service
 
 %postun
 %service_del_postun_without_restart x86-64-v3-libraries.service pci-rescan.service
 %regenerate_initrd_post
-%systemd_user_postun configure-user-flathub.service tcbl-default-applications.service tcbl-themes.service tcbl-themes.timer
+%systemd_user_postun configure-user-flathub.service tcbl-default-applications.service
 # after removal, dumpcap returns to openSUSE's permissions
 if [ $1 -eq 0 ] && [ -e /usr/bin/dumpcap ]; then
 %set_permissions /usr/bin/dumpcap
@@ -326,17 +335,15 @@ fi
 # Flathub for each user: the user service that adds it at their first login,
 # and Flathub's remote file
 %{_userunitdir}/configure-user-flathub.service
-# Firefox from Flathub for each user, once
-%{_userunitdir}/tcbl-default-applications.service
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/flathub.flatpakrepo
-# themes for each user's Flatpak applications (adw-gtk3, Kvantum and its
-# themes), at login and daily, and the system-wide Flatpak override for Qt
-# applications (copied into /var/lib/flatpak/overrides by tmpfiles.d)
-%{_userunitdir}/tcbl-themes.service
-%{_userunitdir}/tcbl-themes.timer
+# the default applications (Firefox, once) and the themes (adw-gtk3, Kvantum and
+# its themes) in each user's Flatpak installation, at every login, and the
+# system-wide Flatpak override for Qt applications (copied into
+# /var/lib/flatpak/overrides by tmpfiles.d)
+%{_userunitdir}/tcbl-default-applications.service
 %dir %{_libexecdir}/tcbl
-%{_libexecdir}/tcbl/themes-for-flatpak
+%{_libexecdir}/tcbl/default-applications
 %{_datadir}/%{name}/flatpak-override-global
 %{_prefix}/lib/tmpfiles.d/90-tcbl-flatpak.conf
 # initrd: power off at the disk prompt when the lid has been closed on battery
