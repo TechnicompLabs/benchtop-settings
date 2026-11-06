@@ -275,6 +275,10 @@ fi
 %license %{_defaultlicensedir}/%{name}/ublue-os-packages.LICENSE
 %license %{_defaultlicensedir}/%{name}/CachyOS-Settings.LICENSE.md
 %license %{_defaultlicensedir}/%{name}/iw-setregdomain.LICENSE
+# D-Bus: ratbagd for every user, as upstream allows (openSUSE: games group)
+%dir %{_datadir}/dbus-1
+%dir %{_datadir}/dbus-1/system.d
+%{_datadir}/dbus-1/system.d/tcbl-ratbagd.conf
 # tmpfiles
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp.conf
 %{_prefix}/lib/tmpfiles.d/90-tcbl-thp-shrinker.conf
