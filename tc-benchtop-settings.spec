@@ -58,6 +58,9 @@ BuildRequires:  systemd-presets-common-SUSE-devel
 %{?systemd_preset_requires}
 # macros for tcbl-x86-64-v3.service and tcbl-flathub.service
 BuildRequires:  systemd-rpm-macros
+# the dracut module (95tcbl-lid-poweroff) is part of the initrd, which is
+# regenerated when it changes
+%regenerate_initrd_requires
 %{?systemd_ordering}
 # Flathub's remote file, which the install section copies for
 # tcbl-flathub.service
@@ -95,7 +98,9 @@ SELinux booleans that let users' programs use executable memory (as on Aeon),
 the kernel command line options (an sdbootutil drop-in), graphical-only logins,
 Flathub in each user's own Flatpak installation, adw-gtk3 as the GTK 3 theme
 and Kvantum (KvLibadwaita) as the Qt style, for host and Flatpak applications,
-and Homebrew in each user's home, installed on first use.
+a power-off at the disk prompt when the lid has been closed on battery for 3
+minutes (a dracut module), and Homebrew in each user's home, installed on first
+use.
 
 It also carries udev rules copied unchanged from other projects, for hardware
 support: game controllers and VR headsets (game-devices-udev); Framework Laptop
@@ -141,6 +146,8 @@ install -d "%{buildroot}"
 ( cd "$treeroot" && cp -a --no-preserve=ownership usr etc "%{buildroot}/" )
 # the programs are executable however the sources were checked out
 chmod 0755 %{buildroot}%{_prefix}/bin/brew \
+    %{buildroot}%{_prefix}/lib/dracut/modules.d/95tcbl-lid-poweroff/module-setup.sh \
+    %{buildroot}%{_prefix}/lib/dracut/modules.d/95tcbl-lid-poweroff/tcbl-lid-poweroff.sh \
     %{buildroot}%{_libexecdir}/tcbl/themes-for-flatpak \
     %{buildroot}%{_prefix}/lib/udev/audio-pm-ctl \
     %{buildroot}%{_prefix}/sbin/iw-setregdomain
@@ -187,6 +194,7 @@ fi
 
 %post
 %systemd_preset_post
+%regenerate_initrd_post
 %systemd_user_preset_post
 %service_add_post tcbl-x86-64-v3.service
 %systemd_user_post tcbl-flathub.service tcbl-themes.service tcbl-themes.timer
@@ -208,6 +216,7 @@ fi
 
 %posttrans
 %systemd_preset_posttrans
+%regenerate_initrd_posttrans
 %systemd_user_preset_posttrans
 
 %preun
@@ -216,6 +225,7 @@ fi
 
 %postun
 %service_del_postun_without_restart tcbl-x86-64-v3.service
+%regenerate_initrd_post
 %systemd_user_postun tcbl-flathub.service tcbl-themes.service tcbl-themes.timer
 # after removal, dumpcap returns to openSUSE's permissions
 if [ $1 -eq 0 ] && [ -e /usr/bin/dumpcap ]; then
@@ -318,6 +328,11 @@ fi
 %{_libexecdir}/tcbl/themes-for-flatpak
 %{_datadir}/%{name}/flatpak-override-global
 %{_prefix}/lib/tmpfiles.d/90-tcbl-flatpak.conf
+# initrd: power off at the disk prompt when the lid has been closed on battery
+# for 3 minutes
+%dir %{_prefix}/lib/dracut
+%dir %{_prefix}/lib/dracut/modules.d
+%{_prefix}/lib/dracut/modules.d/95tcbl-lid-poweroff/
 # Qt applications use the Kvantum style (systemd's user environment)
 %dir %{_prefix}/lib/environment.d
 %{_prefix}/lib/environment.d/90-tcbl-qt.conf
