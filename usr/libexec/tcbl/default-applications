@@ -4,8 +4,8 @@
 # each user's Flatpak installation, at every login
 # (tcbl-default-applications.service).
 #
-# - Firefox, once: a user who removes it does not get it back. A Firefox the
-#   user already has, in either installation, counts.
+# - Firefox and Collabora Office, once: a user who removes one does not get it
+#   back. One the user already has, in either installation, counts.
 # - adw-gtk3 for GTK 3 applications (org.gtk.Gtk3theme.adw-gtk3, -dark), once.
 # - Kvantum for Qt applications (org.kde.KStyle.Kvantum), for each KDE runtime
 #   branch that Flathub still supports and each one the user has, wherever
@@ -21,24 +21,22 @@ status=0
 state="${XDG_STATE_HOME:-$HOME/.local/state}/tc-benchtop"
 config="${XDG_CONFIG_HOME:-$HOME/.config}/Kvantum"
 
-# install REF... once, recorded by the marker file NAME
+# install REF... once, recorded by the marker file NAME; refs the user already
+# has, in either installation, count
 once() {
-    local name=$1
+    local name=$1 ref
     shift
     [ -e "$state/$name" ] && return 0
-    if flatpak install --user --noninteractive --or-update flathub "$@"; then
-        mkdir -p "$state" && touch "$state/$name"
-    else
-        status=1
-    fi
+    for ref in "$@"; do
+        flatpak info "$ref" > /dev/null 2>&1 && continue
+        flatpak install --user --noninteractive flathub "$ref" || { status=1; return; }
+    done
+    mkdir -p "$state" && touch "$state/$name"
 }
 
 if flatpak remotes --user --columns=name | grep -qx flathub; then
-    if [ ! -e "$state/firefox-installed" ] &&
-       flatpak info org.mozilla.firefox > /dev/null 2>&1; then
-        mkdir -p "$state" && touch "$state/firefox-installed"
-    fi
     once firefox-installed org.mozilla.firefox
+    once collabora-office-installed com.collaboraoffice.Office
     once adw-gtk3-flatpak org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark
 
     if refs=$(flatpak remote-ls --user --all --columns=application,branch,options flathub); then

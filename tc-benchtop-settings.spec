@@ -97,8 +97,9 @@ updates (including x86-64-v3 optimized libraries), NetworkManager,
 systemd-resolved and zram swap enabled, zypper's single rpm transaction, the
 SELinux booleans that let users' programs use executable memory (as on Aeon),
 the kernel command line options (an sdbootutil drop-in), graphical-only logins,
-Flathub and Firefox in each user's own Flatpak installation, adw-gtk3 as the GTK 3 theme
-and Kvantum (KvLibadwaita) as the Qt style, for host and Flatpak applications,
+Flathub, Firefox and Collabora Office in each user's own Flatpak installation,
+adw-gtk3 as the GTK 3 theme and Kvantum (KvLibadwaita) as the Qt style, for
+host and Flatpak applications,
 chrony reading the hardware clock as UTC, a power-off at the disk prompt when
 the lid has been closed on battery for 3 minutes (a dracut module), the
 Thunderbolt driver in the initrd, and
@@ -337,9 +338,9 @@ fi
 %{_userunitdir}/configure-user-flathub.service
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/flathub.flatpakrepo
-# the default applications (Firefox, once) and the themes (adw-gtk3, Kvantum and
-# its themes) in each user's Flatpak installation, at every login, and the
-# system-wide Flatpak override for Qt applications (copied into
+# the default applications (Firefox and Collabora Office, once) and the themes
+# (adw-gtk3, Kvantum and its themes) in each user's Flatpak installation, at
+# every login, and the system-wide Flatpak override for Qt applications (copied into
 # /var/lib/flatpak/overrides by tmpfiles.d)
 %{_userunitdir}/tcbl-default-applications.service
 %dir %{_libexecdir}/tcbl
