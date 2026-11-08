@@ -74,9 +74,10 @@ BuildRequires:  sdbootutil
 Requires(post): policycoreutils-python-utils
 Requires(post): selinux-policy-targeted
 Requires(postun): policycoreutils-python-utils
-# fingerprint authentication (pam_fprintd) in openSUSE's common PAM stack, which
-# fprintd-pam does not add itself
-Requires:       pam-config
+# the login screen's settings database (/etc/dconf/db/gdm), compiled by
+# "dconf update"
+Requires(post): dconf
+Requires(postun): dconf
 
 %description
 System-level defaults for Technicomp Benchtop Linux (an immutable
@@ -92,8 +93,9 @@ and Sea Islands GPUs, crash logs kept across reboots (UEFI pstore), ntsync
 loading for Wine and Proton, i2c-dev loading and SMBus access for
 administrators (OpenRGB), network capture without root for administrators
 (Wireshark's dumpcap), realtime-audio and memlock resource limits, the
-systemd-resolved DNS backend selection, fingerprint authentication where a
-fingerprint is enrolled, System76
+systemd-resolved DNS backend selection, an enrolled fingerprint for sudo,
+administrator prompts and screen unlock (the password at the first login),
+System76
 Scheduler and the Benchtop Focus Priority extension enabled, Noto as the
 default sans-serif and monospace fonts, the TCBL package repository with
 its signing key, the services and reboot handling of automatic transactional
@@ -220,6 +222,8 @@ fi
 # on Aeon; the macro records the previous values and does nothing without a
 # targeted policy store
 %selinux_set_booleans -s targeted %{selinuxbooleans}
+# the login screen's settings (/etc/dconf/db/gdm.d)
+dconf update || :
 
 %posttrans
 %systemd_preset_posttrans
@@ -251,12 +255,10 @@ fi
 if [ $1 -eq 0 ]; then
 %selinux_unset_booleans -s targeted %{selinuxbooleans}
 fi
-
-# fingerprint authentication for sudo, administrator prompts and logins, for
-# users who have enrolled a fingerprint; others are asked for their password at
-# once. fprintd-pam removes it again when it is removed.
-%triggerin -- fprintd-pam
-%{_sbindir}/pam-config -a --fprintd || :
+# after removal, the login screen's settings without TCBL's
+if [ $1 -eq 0 ]; then
+    dconf update || :
+fi
 
 %files
 # sysctl
@@ -411,6 +413,20 @@ fi
 %dir %{_distconfdir}/zypp/zypp.conf.d
 %{_distconfdir}/zypp/zypp.conf.d/90-tcbl-singletrans.conf
 # zypper: the TCBL package repository, above the openSUSE repositories
+# fingerprint for sudo and administrator prompts (polkit), before openSUSE's own
+# configuration of each, which they include
+%config %{_sysconfdir}/pam.d/sudo
+%config %{_sysconfdir}/pam.d/sudo-i
+%config %{_sysconfdir}/pam.d/polkit-1
+# the login screen: no fingerprint at the first login, so that the password
+# unlocks the login keyring (a dconf database for the login screen alone)
+%dir %{_sysconfdir}/dconf
+%dir %{_sysconfdir}/dconf/profile
+%config %{_sysconfdir}/dconf/profile/gdm
+%dir %{_sysconfdir}/dconf/db
+%dir %{_sysconfdir}/dconf/db/gdm.d
+%config %{_sysconfdir}/dconf/db/gdm.d/90-tcbl-fingerprint
+%ghost %{_sysconfdir}/dconf/db/gdm
 %dir %{_sysconfdir}/zypp
 %dir %{_sysconfdir}/zypp/repos.d
 %config(noreplace) %{_sysconfdir}/zypp/repos.d/repo-tcbl.repo

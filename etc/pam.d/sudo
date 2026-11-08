@@ -1,0 +1,9 @@
+#%PAM-1.0
+# Technicomp Benchtop Linux: an enrolled fingerprint first, then openSUSE's own
+# sudo configuration, which is included from /usr/lib/pam.d unchanged. Users
+# without a fingerprint are asked for their password at once.
+-auth    sufficient     pam_fprintd.so
+auth     include        /usr/lib/pam.d/sudo
+account  include        /usr/lib/pam.d/sudo
+password include        /usr/lib/pam.d/sudo
+session  include        /usr/lib/pam.d/sudo

@@ -1,0 +1,6 @@
+# Technicomp Benchtop Linux: GDM's own profile (/usr/share/dconf/profile/gdm)
+# with the system database gdm (/etc/dconf/db/gdm.d) between the login screen's
+# user database and GDM's defaults, so that TCBL can set the login screen alone.
+user-db:user
+system-db:gdm
+file-db:/usr/share/gdm/greeter-dconf-defaults

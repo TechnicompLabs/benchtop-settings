@@ -1,0 +1,6 @@
+# Technicomp Benchtop Linux: the first login asks for the password, which also
+# unlocks the login keyring; a fingerprint login would leave it locked. This is
+# the login screen's setting only: unlocking the screen afterwards accepts a
+# fingerprint or the password.
+[org/gnome/login-screen]
+enable-fingerprint-authentication=false
