@@ -74,6 +74,9 @@ BuildRequires:  sdbootutil
 Requires(post): policycoreutils-python-utils
 Requires(post): selinux-policy-targeted
 Requires(postun): policycoreutils-python-utils
+# fingerprint authentication (pam_fprintd) in openSUSE's common PAM stack, which
+# fprintd-pam does not add itself
+Requires:       pam-config
 
 %description
 System-level defaults for Technicomp Benchtop Linux (an immutable
@@ -89,7 +92,8 @@ and Sea Islands GPUs, crash logs kept across reboots (UEFI pstore), ntsync
 loading for Wine and Proton, i2c-dev loading and SMBus access for
 administrators (OpenRGB), network capture without root for administrators
 (Wireshark's dumpcap), realtime-audio and memlock resource limits, the
-systemd-resolved DNS backend selection, System76
+systemd-resolved DNS backend selection, fingerprint authentication where a
+fingerprint is enrolled, System76
 Scheduler and the Benchtop Focus Priority extension enabled, Noto as the
 default sans-serif and monospace fonts, the TCBL package repository with
 its signing key, the services and reboot handling of automatic transactional
@@ -247,6 +251,12 @@ fi
 if [ $1 -eq 0 ]; then
 %selinux_unset_booleans -s targeted %{selinuxbooleans}
 fi
+
+# fingerprint authentication for sudo, administrator prompts and logins, for
+# users who have enrolled a fingerprint; others are asked for their password at
+# once. fprintd-pam removes it again when it is removed.
+%triggerin -- fprintd-pam
+%{_sbindir}/pam-config -a --fprintd || :
 
 %files
 # sysctl

@@ -34,6 +34,7 @@ Layout:
 - `usr/lib/rpm/macros.d/` - files that rpm does not install (`%_netsharedpath`): the GNOME launchers of the terminal programs htop, nvtop and atop, both of amdgpu_top's launchers, and Racket's DrRacket and Slideshow. Packaged separately as `tc-benchtop-settings-rpm`, which the image installs before all other packages
 - `usr/lib/dracut/` - the initrd: the power-off at the disk prompt (`modules.d/95disk-prompt-lid-poweroff`) and the Thunderbolt/USB4 driver, so that a dock works at the disk prompt (`dracut.conf.d/90-thunderbolt.conf`).
 - SELinux booleans, set by the spec's post-install script with selinux-policy's `%selinux_set_booleans` macro: users' programs may use executable memory (`selinuxuser_execmod`, `selinuxuser_execheap`, `selinuxuser_execstack`), as on Aeon. Removing the package restores the previous values
+- Fingerprint authentication: a trigger on `fprintd-pam` runs `pam-config -a --fprintd`, which openSUSE's fprintd-pam does not do itself, so that users with an enrolled fingerprint can use it for sudo, administrator prompts and logins; users without one are asked for their password.
 
 Only the build descriptions (`*.spec`, `README.md`, `.obs/`) and the record of the copied files (`UPSTREAM.md`, `upstream.list`, `scripts/check-upstream`, and the pre-push hook in `.githooks/` that runs the check before every push) live at the repository root. Per-file provenance is in the TC Benchtop design notes under `Performance/`.
 
