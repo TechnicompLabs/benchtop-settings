@@ -415,6 +415,10 @@ fi
 %{_distconfdir}/zypp/zypp.conf.d/90-tcbl-singletrans.conf
 %{_distconfdir}/zypp/zypp.conf.d/90-tcbl-only-requires.conf
 # zypper: the TCBL package repository, above the openSUSE repositories
+# no "Have a lot of fun..." at login: openSUSE-release's
+# /usr/lib/motd.d/welcome silenced the way pam_motd(8) describes
+%dir %{_sysconfdir}/motd.d
+%{_sysconfdir}/motd.d/welcome
 # fingerprint for sudo and administrator prompts (polkit), before openSUSE's own
 # configuration of each, which they include
 %config %{_sysconfdir}/pam.d/sudo
