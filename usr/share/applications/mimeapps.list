@@ -1,0 +1,7 @@
+# Technicomp Benchtop Linux: Firefox as the default web browser; each user's
+# own choice comes first
+[Default Applications]
+text/html=org.mozilla.firefox.desktop
+application/xhtml+xml=org.mozilla.firefox.desktop
+x-scheme-handler/http=org.mozilla.firefox.desktop
+x-scheme-handler/https=org.mozilla.firefox.desktop

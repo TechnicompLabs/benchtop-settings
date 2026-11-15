@@ -379,6 +379,8 @@ fi
 %{_datadir}/glib-2.0/schemas/90-tcbl-gnome-software.gschema.override
 %{_datadir}/glib-2.0/schemas/90-tcbl-gnome-shell.gschema.override
 %{_datadir}/glib-2.0/schemas/90-tcbl-gtk-theme.gschema.override
+# Firefox as the default web browser
+%{_datadir}/applications/mimeapps.list
 # fontconfig: Noto as the default sans-serif and monospace fonts
 %{_datadir}/fontconfig/conf.avail/59-tcbl-family-prefer.conf
 %config %{_sysconfdir}/fonts/conf.d/59-tcbl-family-prefer.conf
