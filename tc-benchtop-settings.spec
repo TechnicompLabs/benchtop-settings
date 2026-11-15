@@ -100,7 +100,8 @@ Scheduler and the Benchtop Focus Priority extension enabled, Noto as the
 default sans-serif and monospace fonts, the TCBL package repository with
 its signing key, the services and reboot handling of automatic transactional
 updates (including x86-64-v3 optimized libraries), NetworkManager,
-systemd-resolved and zram swap enabled, zypper's single rpm transaction, the
+systemd-resolved and zram swap enabled, zypper's single rpm transaction and
+only required packages in updates, the
 SELinux booleans that let users' programs use executable memory (as on Aeon),
 the kernel command line options (an sdbootutil drop-in), graphical-only logins,
 Flathub, Firefox and Collabora Office in each user's own Flatpak installation,
@@ -408,10 +409,11 @@ fi
 %dir %{_sysconfdir}/security/limits.d
 %config %{_sysconfdir}/security/limits.d/90-tcbl-audio.conf
 %config %{_sysconfdir}/security/limits.d/90-tcbl-memlock.conf
-# zypper: one rpm transaction per installation
+# zypper: one rpm transaction per installation, and only required packages
 %dir %{_distconfdir}/zypp
 %dir %{_distconfdir}/zypp/zypp.conf.d
 %{_distconfdir}/zypp/zypp.conf.d/90-tcbl-singletrans.conf
+%{_distconfdir}/zypp/zypp.conf.d/90-tcbl-only-requires.conf
 # zypper: the TCBL package repository, above the openSUSE repositories
 # fingerprint for sudo and administrator prompts (polkit), before openSUSE's own
 # configuration of each, which they include
