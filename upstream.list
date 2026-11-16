@@ -44,7 +44,7 @@ seen gdu meson_options.txt 77c98d4ab133e3c66e4e88acbb05fc82481c2635
 watch gdu src
 
 # Universal Blue: ublue-os-udev-rules
-source ublue https://github.com/ublue-os/packages.git main b63e18a459e607841335447b3caddb120c5c20d3 Apache-2.0
+source ublue https://github.com/ublue-os/packages.git main 7e62ad2dd6e965edc8bbb134c83721d8ffaaba09 Apache-2.0
 file ublue packages/ublue-os-udev-rules/src/udev-rules.d/50-framework16.rules usr/lib/udev/rules.d/50-framework16.rules
 file ublue packages/ublue-os-udev-rules/src/udev-rules.d/50-steam-horipad-controller.rules usr/lib/udev/rules.d/50-steam-horipad-controller.rules
 file ublue packages/ublue-os-udev-rules/src/udev-rules.d/70-wooting.rules usr/lib/udev/rules.d/70-wooting.rules
@@ -62,7 +62,7 @@ seen ublue packages/ublue-os-udev-rules/src/udev-rules.d/88-neutron_hifi_dac.rul
 watch ublue packages/ublue-os-udev-rules/src/udev-rules.d
 
 # CachyOS-Settings
-source cachyos https://github.com/CachyOS/CachyOS-Settings.git master f79b237defab24c45c1d49ad570abd9d3dc03609 GPL-3.0-only
+source cachyos https://github.com/CachyOS/CachyOS-Settings.git master 9e6603a82c89f6c9164d98baf45f342220b1d77a GPL-3.0-only
 file cachyos usr/lib/udev/rules.d/20-audio-pm.rules usr/lib/udev/rules.d/20-audio-pm.rules
 file cachyos usr/lib/udev/rules.d/71-nvidia.rules usr/lib/udev/rules.d/71-nvidia.rules
 file cachyos usr/lib/udev/rules.d/99-cpu-dma-latency.rules usr/lib/udev/rules.d/99-cpu-dma-latency.rules
@@ -72,6 +72,7 @@ seen cachyos usr/lib/udev/rules.d/30-zram.rules 5d810c990ada172bef337c507bac826f
 seen cachyos usr/lib/udev/rules.d/40-hpet-permissions.rules 7af3780f9d9b37ed99039f1a3a594273d8c91501
 seen cachyos usr/lib/udev/rules.d/50-sata.rules f88d8a33c99447addf0491d3ff5a222ce23eb314
 seen cachyos usr/lib/udev/rules.d/60-ioschedulers.rules dc6374c748f250c65a742050b344526d181cfc84
+seen cachyos usr/lib/udev/rules.d/61-writeback-limits.rules 21ae43b5323045c6a8eb92b67e20efe47a1c2ed3
 seen cachyos usr/lib/udev/rules.d/69-hdparm.rules 3fcf480faaee26dea74345c5ddcde5def3de39a5
 seen cachyos usr/lib/udev/rules.d/85-iw-regulatory.rules 7ed00ad115d48c68f2dcc62275723b1b5b628408
 seen cachyos usr/lib/iw-set-regdomain 65370fe2a26d4c1b70698a39b9c8162f515afafd

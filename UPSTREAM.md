@@ -50,6 +50,7 @@ Universal Blue:
 CachyOS-Settings - settings that Benchtop already has, or system policy rather than hardware support:
 
 - `60-ioschedulers.rules` - Benchtop has its own, `90-tcbl-iosched.rules`, which uses kyber for SATA SSDs where CachyOS uses mq-deadline, and keeps slow removable USB flash on BFQ
+- `61-writeback-limits.rules` - caps the dirty page cache of slow disks, together with CachyOS's switch from `vm.dirty_bytes` to `vm.dirty_ratio`. Benchtop keeps `vm.dirty_bytes` at 256 MiB (`90-tcbl-vm.conf`), so its 256 MiB caps for removable disks, HDDs and SD/eMMC would change nothing, and `90-tcbl-usb-writeback.rules` already caps removable USB storage at 8 MiB while leaving USB SSDs uncapped, which CachyOS's 16 MiB rule for every USB disk would not
 - `30-zram.rules` - it sets `vm.swappiness` to 150 when zram0 starts and switches zswap off, which would override Benchtop's 180 (Memory Management notes); its zswap reasoning is input for the open zswap decision
 - `50-sata.rules` - SATA link power management at max_performance: lower latency, more power use on laptops
 - `69-hdparm.rules` - internal hard disks never spin down (`hdparm -B 254 -S 0`), a choice of noise, wear and power rather than hardware support
