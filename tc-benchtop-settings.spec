@@ -376,6 +376,10 @@ fi
 %{_datadir}/glib-2.0/schemas/90-tcbl-gnome-software.gschema.override
 %{_datadir}/glib-2.0/schemas/90-tcbl-gnome-shell.gschema.override
 %{_datadir}/glib-2.0/schemas/90-tcbl-gtk-theme.gschema.override
+# PipeWire: echo cancellation as an extra microphone
+%dir %{_datadir}/pipewire
+%dir %{_datadir}/pipewire/pipewire.conf.d
+%{_datadir}/pipewire/pipewire.conf.d/90-tcbl-echo-cancel.conf
 # Firefox as the default web browser
 %{_datadir}/applications/mimeapps.list
 # fontconfig: Noto as the default sans-serif and monospace fonts
