@@ -11,8 +11,10 @@
 #   branch that Flathub still supports and each one the user has, wherever
 #   Flathub builds Kvantum for it; branches added later are picked up at the
 #   next login.
+# - The Kvantum style for Flatpak Qt applications, once, in the user's own
+#   Flatpak override (a system-wide one reaches only system-installed apps).
 # - The Kvantum themes copied into ~/.config/Kvantum, which Flatpak
-#   applications can read (system-wide override), and KvLibadwaita as the theme
+#   applications can read through that override, and KvLibadwaita as the theme
 #   when the user has not chosen one.
 # A step that needs the network and fails makes the script fail, so that the
 # service tries again.
@@ -49,6 +51,14 @@ if flatpak remotes --user --columns=name | grep -qx flathub; then
             flatpak info --user "org.kde.KStyle.Kvantum//$branch" > /dev/null 2>&1 && continue
             flatpak install --user --noninteractive flathub "org.kde.KStyle.Kvantum//$branch" || status=1
         done
+    else
+        status=1
+    fi
+fi
+
+if [ ! -e "$state/flatpak-kvantum" ]; then
+    if flatpak override --user --filesystem=xdg-config/Kvantum:ro --env=QT_STYLE_OVERRIDE=kvantum; then
+        mkdir -p "$state" && touch "$state/flatpak-kvantum"
     else
         status=1
     fi

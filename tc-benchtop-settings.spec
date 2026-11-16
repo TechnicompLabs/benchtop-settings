@@ -353,13 +353,10 @@ fi
 %{_datadir}/%{name}/flathub.flatpakrepo
 # the default applications (Firefox and Collabora Office, once) and the themes
 # (adw-gtk3, Kvantum and its themes) in each user's Flatpak installation, at
-# every login, and the system-wide Flatpak override for Qt applications (copied into
-# /var/lib/flatpak/overrides by tmpfiles.d)
+# every login, and the Kvantum style in the user's Flatpak override, once
 %{_userunitdir}/tcbl-default-applications.service
 %dir %{_libexecdir}/tcbl
 %{_libexecdir}/tcbl/default-applications
-%{_datadir}/%{name}/flatpak-override-global
-%{_prefix}/lib/tmpfiles.d/90-tcbl-flatpak.conf
 # initrd: power off at the disk prompt when the lid has been closed on battery
 # for 3 minutes
 %dir %{_prefix}/lib/dracut
