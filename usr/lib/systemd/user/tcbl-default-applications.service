@@ -6,13 +6,15 @@
 # lasts, and again at the next login.
 [Unit]
 Description=Default applications and themes in the user's Flatpak installation
-# not for system accounts (the login screen, GNOME's initial setup)
+# not for system accounts (GNOME's initial setup)
 ConditionUser=!@system
 # Flathub is added to the user's installation first
 After=configure-user-flathub.service
 
 [Service]
 Type=oneshot
+# nor for GDM's login-screen users, from systemd's greeter UID range
+ExecCondition=/bin/sh -c 'test %U -lt 60578 || test %U -gt 60705'
 ExecStart=/usr/libexec/tcbl/default-applications
 Restart=on-failure
 RestartSec=5min

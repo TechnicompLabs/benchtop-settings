@@ -67,7 +67,8 @@ fi
 mkdir -p "$config"
 for theme in /usr/share/Kvantum/KvLibadwaita /usr/share/Kvantum/KvYaru-*; do
     [ -e "$theme" ] || continue
-    cp -a -u "$theme" "$config/" || status=1
+    # without the SELinux labels of /usr
+    cp -R --preserve=mode,timestamps -u "$theme" "$config/" || status=1
 done
 if [ ! -e "$config/kvantum.kvconfig" ] && [ -d "$config/KvLibadwaita" ]; then
     printf '[General]\ntheme=KvLibadwaita\n' > "$config/kvantum.kvconfig" || status=1
